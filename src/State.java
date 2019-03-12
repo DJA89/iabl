@@ -6,12 +6,23 @@ import java.util.Iterator;
 
 public class State {
 
+    private int[] routesDistance;
     private ArrayList[] routes;
+
+    private static int[][] distances;
+
     private int[] drivers;
     private int nApuntados;
     private int mConducir;
     private String ERROR_DRIVER = "ERROR: CONDUCTOR NO ENCONTRADO";
     private String ERROR_PASSENGER = "ERROR: PASAJERO NO ENCONTRADO";
+
+    private void ComputeDistances(Usuarios usuarios) {
+        Iterator<Usuario> iterator = usuarios.iterator();
+        while (iterator.hasNext()) {
+        }
+
+    }
 
     public State(int n, int m) {
         //n: numero de personas apuntadas
@@ -95,4 +106,31 @@ public class State {
         }
         return retVal;
     }
+
+    public void SwapPassenger(int c1, int c2, int p1, int p2, int posip1, int posjp1, int posip2, int posjp2 ){}
+
+
+    public void SwapPassenger(int c1, int c2, int p1, int p2){}
+
+    public void SwapRouteOrder(int c, int pos1, int pos2) {}
+
+    public void MovePassenger(int cOrigen, int cDestino, int passenger, int posRecogida, int posDejada) {
+
+        RemovePassenger(routes[cOrigen], passenger);
+        PutPassenger(routes[cDestino], passenger, posRecogida, posDejada);
+
+    }
+
+    private void RemovePassenger(ArrayList<Integer> ruta, int passenger) {
+        ruta.remove(passenger); //removes first occurrence of the passenger
+        ruta.remove(passenger); //removes second occurrence of the passenger
+
+    }
+
+    private void PutPassenger(ArrayList<Integer> ruta, int passenger, int pos1, int pos2) {
+        ruta.add(pos1, passenger);
+        ruta.add(pos2, passenger);
+
+    }
+
 }
