@@ -58,6 +58,18 @@ public class State {
         }
     }
 
+    public void pass(int pos, Usuario passenger) {
+        routes[pos].add(passenger.hashCode());
+    }
+
+    public void pass(int pos, int passenger_id) {
+        routes[pos].add(passenger_id);
+    }
+
+    public int[] getDrivers(){
+        return drivers;
+    }
+
     public String getRoute(int n) {
         String retVal = "id: " + drivers[n-1]+ ", route size: " + routes[n-1].size();
         for(int j = 0; j < routes[n-1].size(); j++) {
