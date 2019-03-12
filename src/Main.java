@@ -2,10 +2,8 @@ import IA.Comparticion.*;
 public class Main {
 
     public static void main(String[] args) {
-        Usuarios usuarios = new Usuarios(5, 3,1);
-        Demo d = new Demo();
-        State s2 = d.donkeyInit(usuarios);
-        System.out.println(s2.toString());
-
+        Demo d = new Demo(new Usuarios(10, 4,1));
+        System.out.println("Donkey Init\n" + d.donkeyInit().toString());
+        System.out.println("Average Init\n" + d.averageInit().toString());
     }
 }
