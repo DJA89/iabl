@@ -2,24 +2,46 @@ import IA.Comparticion.Usuario;
 import IA.Comparticion.Usuarios;
 
 import java.util.ArrayList;
+
 import java.util.Arrays;
 import java.util.Iterator;
+import IA.Comparticion.Usuario;
+import IA.Comparticion.Usuarios;
+
+
+
+
 
 public class State {
 
     private ArrayList[] routes;
+
     private static int[] routesDistance;
-    private static int[][] distances;
     private static int[] drivers;
     private static int[] passengers;
     private static int[] users;
     private static Usuarios usersList;
+    private static int[][] distances;  // distances[i,2*j] = d(punto recogida pasajero i - punto dejada j)
+    private static Position[][] usersInfo;
 
-    private void ComputeDistances(Usuarios usuarios) {
-        Iterator<Usuario> iterator = usuarios.iterator();
-        distances = new int[nApuntados][nApuntados];
-        while (iterator.hasNext()) {
 
+    private void ComputeAllDistances() {
+        int n = usersInfo.length;
+        distances = new int[2*n][2*n];
+        for(int i = 0; i < n; i++) {
+
+            Position pOrigen_i = usersInfo[i][0];
+            Position pDestino_i = usersInfo[i][1];
+
+            for(int j = i; j < n; j++) {
+                Position pOrigen_j = usersInfo[j][0];
+                Position pDestino_j = usersInfo[j][1];
+
+                distances[i][j] = distances[j][i] = ComputeDistance(pOrigen_i, pOrigen_j);
+                distances[2*i][j] = distances[j][i] = ComputeDistance(pDestino_i, pOrigen_j);
+                distances[i][2*j] = distances[j][i] = ComputeDistance(pOrigen_i,pDestino_j);
+                distances[2*i][2*j] = distances[j][i] = ComputeDistance(pDestino_i, pDestino_j);
+           }
         }
     }
 
@@ -66,25 +88,57 @@ public class State {
         pass(0, drivers[0]);
     }
 
-    public void averageInit(){
+    public void averageInit() {
         clearRoutes();
-        int average = passengers.length/drivers.length;
+        int average = passengers.length / drivers.length;
         int passenger_pos = 0, j;
-        for(int i=0;i<drivers.length;i++){
-            pass(i,drivers[i]);
-            for(j = passenger_pos;j<passenger_pos+average;j++){
-                pass(i,passengers[j]);
-                pass(i,passengers[j]);
+        for (int i = 0; i < drivers.length; i++) {
+            pass(i, drivers[i]);
+            for (j = passenger_pos; j < passenger_pos + average; j++) {
+                pass(i, passengers[j]);
+                pass(i, passengers[j]);
             }
             passenger_pos = j;
-            if(i == drivers.length-1){
-                for(j = passenger_pos;j < passengers.length;j++){
-                    pass(i,passengers[j]);
-                    pass(i,passengers[j]);
+            if (i == drivers.length - 1) {
+                for (j = passenger_pos; j < passengers.length; j++) {
+                    pass(i, passengers[j]);
+                    pass(i, passengers[j]);
                 }
             }
-            pass(i,drivers[i]);
+            pass(i, drivers[i]);
         }
+    }
+
+    private int ComputeDistance(Position p1, Position p2) {
+        // d(i,j) = /ix - jx/ + /iy - jy/
+        return Math.abs(p1.x - p2.x) + Math.abs(p1.y - p2.y);
+    }
+
+
+
+    public State(int mDrivers, Usuarios usuarios) {
+
+        //m: numero de personas que pueden conducir
+        routes = new ArrayList[mDrivers];
+        for(int i = 0; i < mDrivers; i++) {
+            routes[i] = new ArrayList<Integer>();
+
+        }
+
+
+
+        int n = usuarios.size();
+        usersInfo = new Position[n][2];
+        int i = 0;
+        for (Usuario user: usuarios) {
+            Position coordOrigen = new Position(user.getCoordOrigenX(), user.getCoordOrigenY());
+            Position coordDestino = new Position(user.getCoordDestinoX(), user.getCoordDestinoY());
+            usersInfo[i][0] = coordOrigen;
+            usersInfo[i][1] = coordDestino;
+            i++;
+        }
+
+        ComputeAllDistances();
     }
 
     public void pass(int driver_pos, int passenger_id) {
