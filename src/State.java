@@ -17,7 +17,9 @@ public class State {
 
     private void ComputeDistances(Usuarios usuarios) {
         Iterator<Usuario> iterator = usuarios.iterator();
+        distances = new int[nApuntados][nApuntados];
         while (iterator.hasNext()) {
+
         }
     }
 
