@@ -82,4 +82,9 @@ public class Demo {
         }
         return s;
     }
+
+    public State minInit(){
+        State s = new State(drivers.length,this.usersList);
+
+    }
 }
