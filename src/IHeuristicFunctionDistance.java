@@ -2,7 +2,7 @@ package IA.probTSP;
 
 import aima.search.framework.HeuristicFunction;
 
-public class IHeuristicFunction implements HeuristicFunction  {
+public class IHeuristicFunctionDistance implements HeuristicFunction  {
 
 //    public boolean equals(Object obj) {
 //        boolean retValue;
