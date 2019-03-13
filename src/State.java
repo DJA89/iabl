@@ -1,23 +1,87 @@
+import IA.Comparticion.Usuario;
+import IA.Comparticion.Usuarios;
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 
 public class State {
 
-    private int[] routesDistance;
     private ArrayList[] routes;
+    private static int[] routesDistance;
     private static int[][] distances;
+    private static int[] drivers;
+    private static int[] passengers;
+    private static int[] users;
+    private static Usuarios usersList;
 
     private void ComputeDistances(Usuarios usuarios) {
         Iterator<Usuario> iterator = usuarios.iterator();
         while (iterator.hasNext()) {
         }
-
     }
 
-    public State(int mDrivers) {
-        //m: numero de personas que pueden conducir
-        routes = new ArrayList[mDrivers];
-        for(int i = 0; i < mDrivers; i++) {
-            routes[i] = new ArrayList<Integer>();
+    public State(Usuarios userList){
+        setUserList(userList);
+    }
+
+    public void setUserList(Usuarios usersList) {
+        Usuario tmp;
+        ArrayList<Integer> tmpDrivers = new ArrayList<Integer>();
+        ArrayList<Integer> tmpPassengers = new ArrayList<Integer>();
+        ArrayList<Integer> tmpUsers = new ArrayList<Integer>();
+        Iterator<Usuario> iterator = usersList.iterator();
+        while (iterator.hasNext()) {
+            tmp = iterator.next();
+            if(tmp.isConductor()) {
+                tmpDrivers.add(tmp.hashCode());
+            }else{
+                tmpPassengers.add(tmp.hashCode());
+            }
+            tmpUsers.add(tmp.hashCode());
+        }
+        drivers = Arrays.stream(tmpDrivers.toArray(new Integer[tmpDrivers.size()])).mapToInt(Integer::intValue).toArray();
+        passengers = Arrays.stream(tmpPassengers.toArray(new Integer[tmpPassengers.size()])).mapToInt(Integer::intValue).toArray();
+        users = Arrays.stream(tmpUsers.toArray(new Integer[tmpUsers.size()])).mapToInt(Integer::intValue).toArray();
+        this.usersList = usersList;
+        routes = new ArrayList[drivers.length];
+        clearRoutes();
+    }
+
+    private void clearRoutes(){
+        for(int i = 0; i < drivers.length; i++) routes[i] = new ArrayList<Integer>();
+    }
+
+    public void donkeyInit(){
+        clearRoutes();
+        pass(0, drivers[0]);
+        for(int i=0;i<users.length;i++){
+            if(users[i] != drivers[0]){
+                pass(0,users[i]);
+                pass(0,users[i]);
+            }
+        }
+        pass(0, drivers[0]);
+    }
+
+    public void averageInit(){
+        clearRoutes();
+        int average = passengers.length/drivers.length;
+        int passenger_pos = 0, j;
+        for(int i=0;i<drivers.length;i++){
+            pass(i,drivers[i]);
+            for(j = passenger_pos;j<passenger_pos+average;j++){
+                pass(i,passengers[j]);
+                pass(i,passengers[j]);
+            }
+            passenger_pos = j;
+            if(i == drivers.length-1){
+                for(j = passenger_pos;j < passengers.length;j++){
+                    pass(i,passengers[j]);
+                    pass(i,passengers[j]);
+                }
+            }
+            pass(i,drivers[i]);
         }
     }
 
