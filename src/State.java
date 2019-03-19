@@ -2,16 +2,11 @@ import IA.Comparticion.Usuario;
 import IA.Comparticion.Usuarios;
 
 import java.util.ArrayList;
-import IA.Comparticion.Usuario;
-import IA.Comparticion.Usuarios;
 import java.util.Iterator;
-
-
-
 import java.util.Arrays;
-import java.util.Iterator;
-import IA.Comparticion.Usuario;
-import IA.Comparticion.Usuarios;
+
+
+
 
 
 
@@ -44,7 +39,7 @@ public class State {
         //m: numero de personas que pueden conducir
         routes = new ArrayList[mDrivers];
         for(int i = 0; i < mDrivers; i++) {
-            routes[i] = new ArrayList<InfoParada>();
+            routes[i] = new ArrayList<Integer>();
 
         }
 
@@ -89,6 +84,12 @@ public class State {
     private int ComputeDistance(Position p1, Position p2) {
         // d(i,j) = /ix - jx/ + /iy - jy/
         return Math.abs(p1.x - p2.x) + Math.abs(p1.y - p2.y);
+    }
+
+    //Recibe como parametro x el numero de pasajero, 2*x si se corresponde a la posicion de dejada
+    private int GetDistance(int x1, int x2) {
+
+        return distances[x1][x2];
     }
 
     private int GetDistance(InfoParada p1, InfoParada p2) {
@@ -190,44 +191,104 @@ public class State {
 
     public void SwapPassenger(int c1, int c2, int p1, int p2, int posip1, int posjp1, int posip2, int posjp2 ) {}
 
-    public void SwapPassenger(int c1, int c2, int p1, int p2) {}
+    public void SwapPassenger(int c1, int c2, int p1, int p2) {
+      /*
+        //get posiciones
+        MovePassenger(c1,c2,p1, posRecogida_p1, posDejada_p1 );   //mirar tema posiciones ruta de insercion, puede dar errores
+        MovePassenger(c2,c1,p2, posRecogida_p1, posDejada_p1);
+        */
+    }
 
-    public void SwapRouteOrder(int c, int pos1, int pos2) {}
+
+    //Intercambia la parada numero pos1 de la ruta con la pos2
+    public void SwapRouteOrder(int c, int pos1, int pos2) {
+        ArrayList<Integer> ruta = routes[c];
+
+        int a1 = ruta.get(pos1 -1);
+        int x1 = ruta.get(pos1);
+        int b1 = ruta.get(pos1 + 1);
+
+        int a2 = ruta.get(pos2 -1);
+        int x2 = ruta.get(pos2);
+        int b2 = ruta.get(pos2 + 1);
+
+        ruta.set(pos1, x2);
+        int d_to_remove = distances[a1][x1] + distances[x1][b1];
+        int d_to_add = distances[a1][x2] + distances[x2][b1];
+
+
+        ruta.set(pos2, x1);
+        int d_to_remove2 = distances[a2][x2] + distances[x2][b2];
+        int d_to_add2 = distances[a1][x2] + distances[x2][b1];
+
+        routesDistance[c] = - d_to_remove - d_to_remove2 + d_to_add + d_to_add2;
+    }
 
     public void MovePassenger(int cOrigen, int cDestino, int passenger, int posRecogida, int posDejada) {
 
-        RemovePassenger(routes[cOrigen], cOrigen, passenger);
-        PutPassenger(routes[cDestino], passenger, posRecogida, posDejada);
+        RemovePassenger(cOrigen, passenger);
+        PutPassenger(cDestino, passenger, posRecogida, posDejada);
     }
 
     //elimina el punto de recogida y de dejada de un pasajero y actualiza la distancia de la ruta del conductor resultante
-    private void RemovePassenger(ArrayList<InfoParada> ruta, int conductor, int passenger) {
+    private void RemovePassenger( int conductor, int passenger) {
 
-        int i = ruta.indexOf(passenger);
+        ArrayList<Integer> ruta = routes[conductor];
+
+        int i = ruta.indexOf(passenger); //posicion de recogida pasajero
         UpdateDistanceRemoved(ruta, conductor,i-1,i,i+1);
         ruta.remove(i);
 
-        i = ruta.indexOf(passenger);
+        i = ruta.indexOf(passenger + N); //posicion de dejada pasajero
         UpdateDistanceRemoved(ruta, conductor,i-1,i,i+1);
         ruta.remove(i);
     }
 
-    //actualiza la distancia de la ruta al eliminar la parada numero j con parada adjacente i-k
-    private void UpdateDistanceRemoved(ArrayList<InfoParada> ruta, int conductor,int i,int j,int k) {
+
+
+    //añade el punto de recogida y de dejada de un pasajero en las posiciones de ruta especificadas
+    // y actualiza la distancia de la ruta del conductor resultante
+    private void PutPassenger(int conductor, int passenger, int pos1, int pos2) {
+
+        ArrayList<Integer> ruta = routes[conductor];
+
+        ruta.add(pos1, passenger);
+        UpdateDistanceAdded(ruta, conductor, pos1 -1, pos1, pos1 +1 );
+        ruta.add(pos2, N + passenger);  //N +  passenger para indicar que es lo posicion de dejada
+        UpdateDistanceAdded(ruta, conductor, pos2 -1, pos2, pos2 +1 );
+    }
+
+    //actualiza la distancia de la ruta al eliminar la parada numero j con paradas adjacentes i  k
+    private void UpdateDistanceRemoved(ArrayList<Integer> ruta, int conductor,int i,int j,int k) {
+
+        int a = ruta.get(i);
+        int b = ruta.get(i);
+        int c = ruta.get(i);
+
+        routesDistance[conductor] = routesDistance[conductor] -  GetDistance(a,b) - GetDistance(b,c) +  GetDistance(a,c);
+
+    }
+
+    //actualiza la distancia de la ruta al añadir la parada numero j con paradas adjacentes i  k
+    private void UpdateDistanceAdded(ArrayList<Integer> ruta, int conductor,int i,int j,int k) {
+
+        int a = ruta.get(i);
+        int b = ruta.get(i);
+        int c = ruta.get(i);
+
+        routesDistance[conductor] = routesDistance[conductor] +  GetDistance(a,b) + GetDistance(b,c) -  GetDistance(a,c);
+
+    }
+
+    /*private void UpdateDistanceRemoved(ArrayList<InfoParada> ruta, int conductor,int i,int j,int k) {
 
 
         InfoParada a = ruta.get(i);
         InfoParada b = ruta.get(i);
         InfoParada c = ruta.get(i);
 
-        routesDistance[conductor] = routesDistance[conductor] -  GetDistance(a,b) - GetDistance(b,c) +  GetDistance(a,b);
+        routesDistance[conductor] = routesDistance[conductor] -  GetDistance(a,b) - GetDistance(b,c) +  GetDistance(a,c);
 
-    }
-
-    //TODO: falta hacer como con remove, el update de la distancia de la ruta etc..
-    private void PutPassenger(ArrayList<Integer> ruta, int passenger, int pos1, int pos2) {
-        ruta.add(pos1, passenger);
-        ruta.add(pos2, passenger);
-    }
+    }*/
 
 }
