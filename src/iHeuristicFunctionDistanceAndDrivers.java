@@ -1,4 +1,4 @@
-package IA.probTSP;
+/*package IA.probTSP;
 
 import aima.search.framework.HeuristicFunction;
 
@@ -28,3 +28,4 @@ public class IHeuristicFunctionDistanceAndDrivers implements HeuristicFunction  
         return (retValue);
     }
 }
+*/

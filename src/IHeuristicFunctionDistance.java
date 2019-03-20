@@ -1,4 +1,4 @@
-package IA.probTSP;
+/*package IA.probTSP;
 
 import aima.search.framework.HeuristicFunction;
 
@@ -27,4 +27,4 @@ public class IHeuristicFunctionDistance implements HeuristicFunction  {
 
         return (retValue);
     }
-}
+}*/

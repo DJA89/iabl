@@ -18,7 +18,7 @@ public class State {
     private  int[] routesDistance;
 
     private static int N;
-    private static int[][] distances;  // distances[i,N+j] = d(punto recogida pasajero i - punto dejada j)
+    public static int[][] distances;  // distances[i,N+j] = d(punto recogida pasajero i - punto dejada j)
     private static Position[][] usersInfo;
 
     private static int[] drivers;
@@ -32,6 +32,12 @@ public class State {
         public boolean dejada;
     }
 
+    public void printMat() {
+        for (int i = 0; i < distances.length; i++) {
+            for (int j = 0; j < distances[i].length; j++) System.out.print(distances[i][j] + " ");
+            System.out.print("\n");
+        }
+    }
 
 
     public State(int mDrivers, Usuarios usuarios) {
@@ -44,9 +50,21 @@ public class State {
         }
 
         N = usuarios.size();
+
+        //Colocamos primero para procesar los conductores
+        ArrayList<Usuario> driversNUsers = new ArrayList<>();
+        for (Usuario user: usuarios) {
+            if (user.isConductor())
+                driversNUsers.add(0,user);
+            else {
+                driversNUsers.add(user);
+            }
+
+        }
+
         usersInfo = new Position[N][2];
         int i = 0;
-        for (Usuario user: usuarios) {
+        for (Usuario user: driversNUsers) {
             Position coordOrigen = new Position(user.getCoordOrigenX(), user.getCoordOrigenY());
             Position coordDestino = new Position(user.getCoordDestinoX(), user.getCoordDestinoY());
             usersInfo[i][0] = coordOrigen;
@@ -56,6 +74,21 @@ public class State {
 
         ComputeAllDistances();
     }
+
+    public State(State state) {
+        this.routes = state.GetRoutes();
+        this.routesDistance = state.GetRoutesDistances();
+    }
+
+    public ArrayList[] GetRoutes() {
+        return this.routes;
+    }
+
+    public int[] GetRoutesDistances() {
+        return this.routesDistance;
+    }
+
+
 
     public State(Usuarios userList){
         setUserList(userList);
@@ -226,6 +259,7 @@ public class State {
 
     public void MovePassenger(int cOrigen, int cDestino, int passenger, int posRecogida, int posDejada) {
 
+        if(cOrigen == passenger && routes[cOrigen].size() >= 2)
         RemovePassenger(cOrigen, passenger);
         PutPassenger(cDestino, passenger, posRecogida, posDejada);
     }
