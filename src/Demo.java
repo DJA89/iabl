@@ -1,4 +1,4 @@
-import IA.Comparticion.Usuario;
+/*import IA.Comparticion.Usuario;
 import IA.Comparticion.Usuarios;
 
 import java.util.ArrayList;
@@ -88,3 +88,5 @@ public class Demo {
 
     }
 }
+
+*/
