@@ -3,13 +3,12 @@ import IA.Comparticion.Usuarios;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-
 public class State {
 
     private HashSet<Short>[] conductor_pasajeros;  //Cada posicion del array corresponde a un conductor, y este contiene el conjunto de pasajeros a transportar
     private int[] distancia_ruta_optima;   //distancia_ruta_optima[i] = distancia de la ruta mas corta resultante de las posibles combinaciones con los pasajeros a transportar
     private static int N;                   // total usuarios
-    private static int M;                   // total conductores
+    private static short M;                   // total conductores
     private static int[][] distancias;      // distancias(i,j), donde por ejemplo 'i' es el numero de pasajero si queremos su punto de recogida, o i+N para el punto de dejada
     private static Position[][] usersInfo;  // coordenadas de origen y destino de cada uno de los usuarios, usersInfo[0 - M-1] corresponde a los conductores
     private static int maxDistancia = 300;
@@ -94,7 +93,7 @@ public class State {
         return m;
     }
 
-    public int GetConductoresTotales() {
+    public short GetConductoresTotales() {
         return M;
     }
 
@@ -211,6 +210,10 @@ public class State {
         }
     }
 
+    public HashSet PasajerosDeConductor(short conductor) {
+        return conductor_pasajeros[conductor];
+    }
+
     public void minRouteInit() {
         inicioPasajeros();
         int tmpDistancia, restDistancia, minDistancia;
@@ -263,5 +266,5 @@ public class State {
             }
         }
       }
-    }
+
 }
