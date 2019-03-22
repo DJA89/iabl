@@ -6,4 +6,10 @@ public class Position {
         this.x = x;
         this.y = y;
     }
+
+    @Override
+    public String toString() {
+        return "("+ String.valueOf(x) + "," + String.valueOf(y) + ")";
+    }
+
 }

@@ -1,104 +1,134 @@
 import IA.Comparticion.Usuario;
 import IA.Comparticion.Usuarios;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashSet;
+
 
 public class State {
 
-    private ArrayList[] routes;
-    private static int[] drivers;
-    private static int[] passengers;
-    private static int[] users;
-    private static Usuarios usersList;
-    private static int[][] distances;  // distances[i,2*j] = d(punto recogida pasajero i - punto dejada j)
-    private static Position[][] usersInfo;
+    private HashSet<Short>[] conductor_pasajeros;  //Cada posicion del array corresponde a un conductor, y este contiene el conjunto de pasajeros a transportar
+    private int[] distancia_ruta_optima;   //distancia_ruta_optima[i] = distancia de la ruta mas corta resultante de las posibles combinaciones con los pasajeros a transportar
+    private static int N;                   // total usuarios
+    private static int M;                   // total conductores
+    private static int[][] distancias;      // distancias(i,j), donde por ejemplo 'i' es el numero de pasajero si queremos su punto de recogida, o i+N para el punto de dejada
+    private static Position[][] usersInfo;  // coordenadas de origen y destino de cada uno de los usuarios, usersInfo[0 - M-1] corresponde a los conductores
+    private static int maxDistancia = 300;
 
-    public State(Usuarios userList){
-        setUserList(userList);
+    public void ImprimirDistancias() {
+        for (int i = 0; i < distancias.length; i++) {
+            for (int j = 0; j < distancias[i].length; j++) System.out.print(distancias[i][j] + "\t");
+            System.out.print("\n");
+        }
     }
 
-    public void setUserList(Usuarios usersList) {
-        ArrayList<Integer> tmpDrivers = new ArrayList<Integer>();
-        ArrayList<Integer> tmpPassengers = new ArrayList<Integer>();
-        ArrayList<Integer> tmpUsers = new ArrayList<Integer>();
-        usersInfo = new Position[usersList.size()][2];
-        int i = 0;
-        for (Usuario user: usersList) {
-            usersInfo[i][0] = new Position(user.getCoordOrigenX(), user.getCoordOrigenY()); //Origen
-            usersInfo[i][1] = new Position(user.getCoordDestinoX(), user.getCoordDestinoY()); //Destino;
-            i++;
-            if(user.isConductor()) {
-                tmpDrivers.add(user.hashCode());
-            }else{
-                tmpPassengers.add(user.hashCode());
-            }
-            tmpUsers.add(user.hashCode());
+    public void ImprimirPosiciones() {
+        for (int i = 0; i < usersInfo.length; i++) {
+            for (int j = 0; j < usersInfo[i].length; j++) System.out.print(usersInfo[i][j] + "\t");
+            System.out.print("\n");
         }
-        drivers = Arrays.stream(tmpDrivers.toArray(new Integer[tmpDrivers.size()])).mapToInt(Integer::intValue).toArray();
-        passengers = Arrays.stream(tmpPassengers.toArray(new Integer[tmpPassengers.size()])).mapToInt(Integer::intValue).toArray();
-        users = Arrays.stream(tmpUsers.toArray(new Integer[tmpUsers.size()])).mapToInt(Integer::intValue).toArray();
-        this.usersList = usersList;
-        routes = new ArrayList[drivers.length];
-        initRoutes();
+    }
+
+    public void ImprimirConductores() {
+        int i = 0;
+        for (HashSet<Short> pasajeros : conductor_pasajeros) {
+            System.out.print(i + ") ");
+            for (Short pasajero : pasajeros) System.out.print(pasajero + "\t");
+            System.out.print("\n");
+            i++;
+        }
+    }
+
+    public State(Usuarios usuarios) {
+
+        //inicializamos datos
+        for (int i = 0; i < M; i++) {
+            conductor_pasajeros[i] = new HashSet<Short>();
+        }
+        N = usuarios.size();
+
+        //Contamos y colocamos primero para procesar los conductores
+        ArrayList<Usuario> driversNUsers = new ArrayList<>();
+        M = 0;
+        for (Usuario user : usuarios) {
+            if (user.isConductor()) {
+                driversNUsers.add(0, user);
+                M++;
+            } else {
+                driversNUsers.add(user);
+            }
+        }
+
+        distancia_ruta_optima = new int[M];
+        conductor_pasajeros = new HashSet[M];
+        for(int i=0;i<M;i++) conductor_pasajeros[i] = new HashSet<Short>();
+        usersInfo = new Position[N][2];
+        int i = 0;
+        for (Usuario user : driversNUsers) {
+            Position coordOrigen = new Position(user.getCoordOrigenX(), user.getCoordOrigenY());
+            Position coordDestino = new Position(user.getCoordDestinoX(), user.getCoordDestinoY());
+            usersInfo[i][0] = coordOrigen;
+            usersInfo[i][1] = coordDestino;
+            i++;
+        }
         ComputeAllDistances();
     }
 
-    private void initRoutes(){
-        for(int i = 0; i < drivers.length; i++) routes[i] = new ArrayList<Integer>();
+    //Pre: Algun state previo debe haber sido creado con state(usuarios) , la creadora anterior, para tener inicializados los campos static
+    public State(State state) {
+        this.M = state.M;
+        this.N = state.N;
+        this.conductor_pasajeros = new HashSet[M];
+        for (int i = 0; i < M; i++) {
+            conductor_pasajeros[i] = new HashSet<Short>();
+            conductor_pasajeros[i] = state.GetConductor_pasajeros()[i];
+        }
+        this.distancia_ruta_optima = new int[M];
+        this.distancia_ruta_optima = state.GetDistancia_ruta_optima();
+    }
+
+    public int GetConductoresActuales() {
+        int m = 0;
+        for (HashSet s : conductor_pasajeros) {
+            if (s.size() > 0) m++;
+        }
+        return m;
+    }
+
+    public int GetConductoresTotales() {
+        return M;
+    }
+
+    public HashSet[] GetConductor_pasajeros() {
+        return this.conductor_pasajeros;
+    }
+
+    public int[] GetDistancia_ruta_optima() {
+        return this.distancia_ruta_optima;
     }
 
     private void ComputeAllDistances() {
-        int n = usersInfo.length;
-        distances = new int[2*n][2*n];
-        for(int i = 0; i < n; i++) {
+        distancias = new int[2 * N][2 * N];
+        for (int i = 0; i < N; i++) {
+
             Position pOrigen_i = usersInfo[i][0];
             Position pDestino_i = usersInfo[i][1];
-            for(int j = i; j < n; j++) {
+
+            for (int j = i; j < N; j++) {
                 Position pOrigen_j = usersInfo[j][0];
                 Position pDestino_j = usersInfo[j][1];
-                distances[i][j] = distances[j][i] = ComputeDistance(pOrigen_i, pOrigen_j);
-                distances[2*i][j] = distances[j][i] = ComputeDistance(pDestino_i, pOrigen_j);
-                distances[i][2*j] = distances[j][i] = ComputeDistance(pOrigen_i,pDestino_j);
-                distances[2*i][2*j] = distances[j][i] = ComputeDistance(pDestino_i, pDestino_j);
+
+                distancias[i][j] = distancias[j][i] = ComputeDistance(pOrigen_i, pOrigen_j);
+                distancias[N + i][j] = distancias[j][N + i] = ComputeDistance(pDestino_i, pOrigen_j);
+                distancias[i][N + j] = distancias[N + j][i] = ComputeDistance(pOrigen_i, pDestino_j);
+                distancias[N + i][N + j] = distancias[N + j][N + i] = ComputeDistance(pDestino_i, pDestino_j);
             }
         }
-    }
 
-    public void donkeyInit(){
-        initRoutes();
-        pass(0, drivers[0]);
-        for(int i=0;i<users.length;i++){
-            if(users[i] != drivers[0]){
-                pass(0,users[i]);
-                pass(0,users[i]);
-            }
+        //Asignamos distancia 0 a la distancia de un punto consigo mismo
+        for (int k = 0; k < N; k++) {
+            distancias[k][k] = 0;
+            distancias[k + N][k + N] = 0;
         }
-        pass(0, drivers[0]);
-    }
-
-    public void averageInit() {
-        initRoutes();
-        int average = passengers.length / drivers.length;
-        int passenger_pos = 0, j;
-        for (int i = 0; i < drivers.length; i++) {
-            pass(i, drivers[i]);
-            for (j = passenger_pos; j < passenger_pos + average; j++) {
-                pass(i, passengers[j]);
-                pass(i, passengers[j]);
-            }
-            passenger_pos = j;
-            if (i == drivers.length - 1) {
-                for (j = passenger_pos; j < passengers.length; j++) {
-                    pass(i, passengers[j]);
-                    pass(i, passengers[j]);
-                }
-            }
-            pass(i, drivers[i]);
-        }
-    }
-
-    public void minRouteInit() {
-        initRoutes();
     }
 
     private int ComputeDistance(Position p1, Position p2) {
@@ -106,46 +136,132 @@ public class State {
         return Math.abs(p1.x - p2.x) + Math.abs(p1.y - p2.y);
     }
 
-    public void pass(int driver_pos, int passenger_id) {
-        routes[driver_pos].add(passenger_id);
+    //Recibe como parametro x el numero de pasajero, 2*x si se corresponde a la posicion de dejada
+    private int GetDistance(int x1, int x2) {
+        return distancias[x1][x2];
     }
 
-    public void SwapPassenger(int c1, int c2, int p1, int p2, int posip1, int posjp1, int posip2, int posjp2 ) {}
+    public boolean MoverPasajero(short cOrigen, short cDestino, short pasajero) {
 
-    public void SwapPassenger(int c1, int c2, int p1, int p2) {}
+        HashSet<Short> pasajeros_cOrigen = conductor_pasajeros[cOrigen];
+        HashSet<Short> pasajeros_cDestino = conductor_pasajeros[cDestino];
 
-    public void SwapRouteOrder(int c, int pos1, int pos2) {}
+        //Comprobamos que el pasajero a mover no sea el conductor si el coche lleva pasajeros y que si el pasajero tiene que conducir un coche este sea el suyo
+        if ((cOrigen == pasajero && pasajeros_cOrigen.size() > 1) ||
+                pasajeros_cDestino.size() == 0 && cDestino != pasajero) return false;
 
-    public void MovePassenger(int cOrigen, int cDestino, int passenger, int posRecogida, int posDejada) {
-        RemovePassenger(routes[cOrigen], passenger);
-        PutPassenger(routes[cDestino], passenger, posRecogida, posDejada);
+        pasajeros_cOrigen.remove(pasajero);
+        pasajeros_cDestino.add(pasajero);
+
+        //recalcular distancia_ruta_optima[cOrigen]
+        //recalcular distancia_ruta_optima[cDestino]
+
+        return true;
     }
 
-    private void RemovePassenger(ArrayList<Integer> ruta, int passenger) {
-        ruta.remove(passenger); //removes first occurrence of the passenger
-        ruta.remove(passenger); //removes second occurrence of the passenger
+    public boolean SwapPasajeros(short c1, short c2, short pasajero1, short pasajero2) {
+
+        HashSet<Short> pasajeros_c1 = conductor_pasajeros[c1];
+        HashSet<Short> pasajeros_c2 = conductor_pasajeros[c2];
+
+        if ((c1 == pasajero1 && pasajeros_c1.size() > 1) || (c2 == pasajero2 && pasajeros_c1.size() > 1) ||
+                pasajeros_c2.size() == 1 || pasajeros_c1.size() == 1) return false;
+
+        pasajeros_c1.remove(pasajero1);
+        pasajeros_c2.remove(pasajero2);
+
+        pasajeros_c1.add(pasajero2);
+        pasajeros_c2.add(pasajero1);
+
+        //recalcular distancia_ruta_optima[cOrigen]
+        //recalcular distancia_ruta_optima[cDestino]
+        return true;
+
     }
 
-    private void PutPassenger(ArrayList<Integer> ruta, int passenger, int pos1, int pos2) {
-        ruta.add(pos1, passenger);
-        ruta.add(pos2, passenger);
+    public boolean AnadirPasajero(short chofer, short pasajero){
+        if((chofer == pasajero) || conductor_pasajeros[chofer].contains(pasajero)) return false;
+        conductor_pasajeros[chofer].add(pasajero);
+        return true;
     }
 
-    public String getRoute(int driver_pos) {
-        String retVal = "Size: " + routes[driver_pos-1].size() + ": ";
-        for(int i = 0; i < routes[driver_pos-1].size(); i++) {
-            retVal += " " + routes[driver_pos-1].get(i);
+    private void inicioPasajeros(){
+        conductor_pasajeros = new HashSet[M];
+        for(int i=0;i<M;i++) conductor_pasajeros[i] = new HashSet<Short>();
+    }
+
+    public void donkeyInit(){
+        inicioPasajeros();
+        for(short i=0;i<N;i++) AnadirPasajero((short) 0,i);
+    }
+
+    public void averageInit() {
+        inicioPasajeros();
+        int average = N/M - 1;
+        int passenger_pos = M, j;
+        for (int i = 0; i < M; i++) {
+            for (j = passenger_pos; j < passenger_pos + average; j++) AnadirPasajero((short)i,(short)j);
+            passenger_pos = j;
+            if (i == M - 1)
+                for (int k = 0; k < M; k++) {
+                    if(passenger_pos == N) break;
+                    AnadirPasajero((short)k,(short)passenger_pos);
+                    passenger_pos ++;
+                }
         }
-        retVal += "\n";
-        return retVal;
     }
 
-    public String toString() {
-        String retVal = "";
-        for(int i = 0; i < routes.length; i++) {
-            retVal += getRoute(i + 1);
+    public void minRouteInit() {
+        inicioPasajeros();
+        int tmpDistancia, restDistancia, minDistancia;
+        short pasajero = 0, ultimoPasajero;
+        ArrayList<Short> pasajerosDisponibles = new ArrayList<Short>();
+        for (int i = M; i < N; i++) pasajerosDisponibles.add((short) i);
+
+        for (int i = 0; i < M; i++) {
+            if (pasajerosDisponibles.isEmpty()) break;
+            restDistancia = 0;
+            minDistancia = distancias[i][N + i];
+            ultimoPasajero = (short) (N + i);
+            while (minDistancia <= maxDistancia) {
+                minDistancia = Integer.MAX_VALUE;
+                for (Short j : pasajerosDisponibles) {
+                    tmpDistancia = distancias[j][i] + distancias[N + j][j] + distancias[N + j][ultimoPasajero] + restDistancia;
+                    if (tmpDistancia < minDistancia) {
+                        minDistancia = tmpDistancia;
+                        pasajero = j;
+                    }
+                }
+                if (minDistancia <= maxDistancia) {
+                    AnadirPasajero((short) i, pasajero);
+                    ultimoPasajero = pasajero;
+                    pasajerosDisponibles.remove((Short) pasajero);
+                    restDistancia = minDistancia - distancias[pasajero][i];
+                }
+            }
         }
-        return retVal;
+        //Cabe la posibilidad de no encontrar una solucion optima, por lo que, si es que han sobrado
+        //pasajeros disponibles, se los distribuye equitativamente entre los conductores
+        if (!pasajerosDisponibles.isEmpty()){
+            int average = pasajerosDisponibles.size()/M;
+            for (int i = 0; i < M; i++) {
+                for (Short j : pasajerosDisponibles) {
+                    for(int k = 0; k < average; k++){
+                        AnadirPasajero((short)i,(short)j);
+                        pasajerosDisponibles.remove(j);
+                    }
+                }
+                if (i == M - 1){
+                    int k = 0;
+                    for (Short j : pasajerosDisponibles){
+                        AnadirPasajero((short)k,j);
+                        pasajerosDisponibles.remove(j);
+                        if(pasajerosDisponibles.isEmpty()) break;
+                        k++;
+                    }
+                }
+            }
+        }
     }
-
 }
+
