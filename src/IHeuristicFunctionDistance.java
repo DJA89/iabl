@@ -1,5 +1,3 @@
-package IA.probTSP;
-
 import aima.search.framework.HeuristicFunction;
 
 public class IHeuristicFunctionDistance implements HeuristicFunction  {
@@ -12,11 +10,12 @@ public class IHeuristicFunctionDistance implements HeuristicFunction  {
 //    }
 
     public double getHeuristicValue(Object state) {
-        State state = (State) state;
-        int[] routesDistance = state.getRoutesDistance();
+        State sState = (State) state;
+        int[] routesDistance = sState.GetDistancia_ruta_optima();
         int retValue = 0;
         int currentLength;
-        for (i = 0; i < routesDistance.length(); i++) {
+        int conductoresTotales = sState.GetConductoresTotales();
+        for (int i = 0; i < conductoresTotales; i++) {
             currentLength = routesDistance[i];
             if (currentLength <= 300) {
                 retValue += currentLength;
