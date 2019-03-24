@@ -160,8 +160,9 @@ public class State {
         pasajeros_cOrigen.remove(pasajero);
         pasajeros_cDestino.add(pasajero);
 
-        searchOptimalRoute(cOrigen);
-        searchOptimalRoute(cDestino);
+
+        searchOptimalRouteAlternativo(cOrigen);
+        searchOptimalRouteAlternativo(cDestino);
 
         return true;
     }
@@ -180,8 +181,8 @@ public class State {
         pasajeros_c1.add(pasajero2);
         pasajeros_c2.add(pasajero1);
 
-        searchOptimalRoute(c1);
-        searchOptimalRoute(c2);
+        searchOptimalRouteAlternativo(c1);
+        searchOptimalRouteAlternativo(c2);
         return true;
 
     }
@@ -248,6 +249,23 @@ public class State {
 
     public HashSet PasajerosDeConductor(short conductor) {
         return conductor_pasajeros[conductor];
+    }
+
+    private void  searchOptimalRouteAlternativo(int c) {
+        Util u = new Util();
+        int[] paradasPasajeros = new int[conductor_pasajeros[c].size()*2];
+        paradasPasajeros[0] = c;
+        paradasPasajeros[paradasPasajeros.length -1] = c+N;
+        int i = 1;
+        for (Short x: conductor_pasajeros[c]) {
+            if(x != c) {
+                paradasPasajeros[i] = x;
+                paradasPasajeros[i+1] = x+N;
+                i = i +2;
+            }
+        }
+        distancia_ruta_optima[c] = u.dijkstra(N, paradasPasajeros ,c, distancias);
+
     }
 
     private void searchOptimalRoute(int conductor) {
