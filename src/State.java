@@ -29,13 +29,19 @@ public class State {
     }
 
     public void ImprimirConductores() {
+        System.out.print(this);
+    }
+
+    public String toString() {
         int i = 0;
+        String str = "\n";
         for (HashSet<Short> pasajeros : conductor_pasajeros) {
-            System.out.print(i + ") ");
-            for (Short pasajero : pasajeros) System.out.print(pasajero + "\t");
-            System.out.print("\n");
+            str += (i + ") ");
+            for (Short pasajero : pasajeros) str += (pasajero + "\t");
+            str += ("\n");
             i++;
         }
+        return str;
     }
 
     public State(Usuarios usuarios) {
@@ -180,7 +186,6 @@ public class State {
     }
 
     public boolean AnadirPasajero(short chofer, short pasajero){
-        if((chofer == pasajero) || conductor_pasajeros[chofer].contains(pasajero)) return false;
         conductor_pasajeros[chofer].add(pasajero);
         return true;
     }
@@ -200,6 +205,7 @@ public class State {
         int average = N/M - 1;
         int passenger_pos = M, j;
         for (int i = 0; i < M; i++) {
+            AnadirPasajero((short)i,(short)i);
             for (j = passenger_pos; j < passenger_pos + average; j++) AnadirPasajero((short)i,(short)j);
             passenger_pos = j;
             if (i == M - 1)
@@ -219,6 +225,7 @@ public class State {
         for (int i = M; i < N; i++) pasajerosDisponibles.add((short) i);
 
         for (int i = 0; i < M; i++) {
+            AnadirPasajero((short)i,(short)i);
             if (pasajerosDisponibles.isEmpty()) break;
             restDistancia = 0;
             minDistancia = distancias[i][N + i];
