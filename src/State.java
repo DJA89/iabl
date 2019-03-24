@@ -82,8 +82,6 @@ public class State {
 
     //Pre: Algun state previo debe haber sido creado con state(usuarios) , la creadora anterior, para tener inicializados los campos static
     public State(State state) {
-        this.M = state.M;
-        this.N = state.N;
         this.conductor_pasajeros = new HashSet[M];
         for (int i = 0; i < M; i++) {
             conductor_pasajeros[i] = new HashSet<Short>();
@@ -161,8 +159,8 @@ public class State {
         pasajeros_cDestino.add(pasajero);
 
 
-        searchOptimalRouteAlternativo(cOrigen);
-        searchOptimalRouteAlternativo(cDestino);
+        searchOptimalRoute(cOrigen);
+        searchOptimalRoute(cDestino);
 
         return true;
     }
@@ -181,8 +179,8 @@ public class State {
         pasajeros_c1.add(pasajero2);
         pasajeros_c2.add(pasajero1);
 
-        searchOptimalRouteAlternativo(c1);
-        searchOptimalRouteAlternativo(c2);
+        searchOptimalRoute(c1);
+        searchOptimalRoute(c2);
         return true;
 
     }
