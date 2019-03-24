@@ -43,9 +43,10 @@ public class SuccessorFunction implements aima.search.framework.SuccessorFunctio
         //conductor1, conductor2, pasajero1, pasajero2, recogida1, dejada1, recogida2, dejada2;
         for (short conductor1 = 0; conductor1 < conductoresTotales; conductor1++) {
             HashSet<Short> pasajerosDeConductor1 = currentState.PasajerosDeConductor(conductor1);
-            Iterator it1 = pasajerosDeConductor1.iterator();
-            while (it1.hasNext()) {
-                short pasajero = (short) it1.next();
+            //Iterator it1 = pasajerosDeConductor1.iterator();
+            //while (it1.hasNext()) {
+            for(short pasajero : pasajerosDeConductor1) {
+                //short pasajero = (short) it1.next();
                 for (short conductor2 = 0; conductor2 < conductoresTotales; conductor2++) {
                     State newState = new State(currentState);
                     if (newState.MoverPasajero(conductor1, conductor2, pasajero)) {
