@@ -47,11 +47,6 @@ public class State {
 
         //inicializamos datos
 
-        for (int i = 0; i < M; i++) {
-            conductor_pasajeros[i] = new HashSet<Short>();
-        }
-        N = usuarios.size();
-
         //Contamos y colocamos primero para procesar los conductores
         ArrayList<Usuario> driversNUsers = new ArrayList<>();
         M = 0;
@@ -63,7 +58,7 @@ public class State {
                 driversNUsers.add(user);
             }
         }
-
+        conductor_pasajeros = new HashSet[M];
         for (int i = 0; i < M; i++) {
             conductor_pasajeros[i] = new HashSet<Short>();
         }
@@ -71,7 +66,7 @@ public class State {
 
 
         distancia_ruta_optima = new int[M];
-        conductor_pasajeros = new HashSet[M];
+
         for(int i=0;i<M;i++) conductor_pasajeros[i] = new HashSet<Short>();
         usersInfo = new Position[N][2];
         int i = 0;
@@ -212,8 +207,8 @@ public class State {
         pasajeros_c2.remove(c1);
         pasajeros_c2.add(c2);
 
-        //recalcular distancia_ruta_optima[cOrigen]
-        //recalcular distancia_ruta_optima[cDestino]
+        searchOptimalRoute(c1);
+        searchOptimalRoute(c2);
         return true;
 
     }
