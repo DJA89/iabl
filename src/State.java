@@ -47,6 +47,11 @@ public class State {
 
         //inicializamos datos
 
+        for (int i = 0; i < M; i++) {
+            conductor_pasajeros[i] = new HashSet<Short>();
+        }
+        N = usuarios.size();
+
         //Contamos y colocamos primero para procesar los conductores
         ArrayList<Usuario> driversNUsers = new ArrayList<>();
         M = 0;
