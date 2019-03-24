@@ -87,7 +87,10 @@ public class State {
             conductor_pasajeros[i] = new HashSet<Short>(state.GetConductor_pasajeros()[i]);
         }
         this.distancia_ruta_optima = new int[M];
-        this.distancia_ruta_optima = state.GetDistancia_ruta_optima();
+        int[] distancia_vieja = state.GetDistancia_ruta_optima();
+        for (int i = 0; i < M; i++) {
+            distancia_ruta_optima[i] = distancia_vieja[i];
+        }
     }
 
     public int GetConductoresActuales() {
@@ -157,8 +160,9 @@ public class State {
         pasajeros_cOrigen.remove(pasajero);
         pasajeros_cDestino.add(pasajero);
 
-
-        searchOptimalRoute(cOrigen);
+        if (conductor_pasajeros[cOrigen].size() > 0) {
+            searchOptimalRoute(cOrigen);
+        }
         searchOptimalRoute(cDestino);
 
         return true;
@@ -240,6 +244,9 @@ public class State {
                     AnadirPasajero((short)k,(short)passenger_pos);
                     passenger_pos ++;
                 }
+        }
+        for(int i = 0; i < M; i++) {
+            searchOptimalRoute(i);
         }
     }
 
