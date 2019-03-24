@@ -84,8 +84,7 @@ public class State {
     public State(State state) {
         this.conductor_pasajeros = new HashSet[M];
         for (int i = 0; i < M; i++) {
-            conductor_pasajeros[i] = new HashSet<Short>();
-            conductor_pasajeros[i] = state.GetConductor_pasajeros()[i];
+            conductor_pasajeros[i] = new HashSet<Short>(state.GetConductor_pasajeros()[i]);
         }
         this.distancia_ruta_optima = new int[M];
         this.distancia_ruta_optima = state.GetDistancia_ruta_optima();
@@ -267,11 +266,11 @@ public class State {
     }
 
     private void searchOptimalRoute(int conductor) {
-        int cantidadDePasajeros = conductor_pasajeros[conductor].size();
-        int[] pasajeros = new int[cantidadDePasajeros - 1];
-        int[] ruta = new int[cantidadDePasajeros*2];
+        int cantidadDePasajeros = conductor_pasajeros[conductor].size() - 1;
+        int[] pasajeros = new int[cantidadDePasajeros];
+        int[] ruta = new int[(cantidadDePasajeros+1)*2];
         ruta[0] = conductor;
-        ruta[cantidadDePasajeros*2-1] = conductor + N;
+        ruta[(cantidadDePasajeros+1)*2-1] = conductor + N;
         int[] pasajerosActuales = new int[2];
         pasajerosActuales[0] = pasajerosActuales[1] = -1;
         int lugarActual = 0;
