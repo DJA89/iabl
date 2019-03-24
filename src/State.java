@@ -179,6 +179,33 @@ public class State {
 
     }
 
+    //intercambia los coches/conductores que llevan a los pasajeros,  (cada conductor transportara al conjunto de pasajeros que llevaba el otro)
+    public boolean SwapConductor(short c1, short c2) {
+
+        HashSet<Short> pasajeros_c1 = conductor_pasajeros[c1];
+        HashSet<Short> pasajeros_c2 = conductor_pasajeros[c2];
+
+        if(pasajeros_c1.isEmpty() || pasajeros_c2.isEmpty())
+            return false;
+
+        //swap de el conjunto de pasajeros entero(incluido el propio conductor)
+        HashSet<Short> aux = pasajeros_c1;
+        pasajeros_c1 = pasajeros_c2;
+        pasajeros_c2 = aux;
+
+        //colocamos de nuevo los conductores en sus coches
+        pasajeros_c1.remove(c2);
+        pasajeros_c1.add(c1);
+
+        pasajeros_c2.remove(c1);
+        pasajeros_c2.add(c2);
+
+        //recalcular distancia_ruta_optima[cOrigen]
+        //recalcular distancia_ruta_optima[cDestino]
+        return true;
+
+    }
+
     public boolean AnadirPasajero(short chofer, short pasajero){
         if((chofer == pasajero) || conductor_pasajeros[chofer].contains(pasajero)) return false;
         conductor_pasajeros[chofer].add(pasajero);
