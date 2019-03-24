@@ -82,8 +82,6 @@ public class State {
 
     //Pre: Algun state previo debe haber sido creado con state(usuarios) , la creadora anterior, para tener inicializados los campos static
     public State(State state) {
-        this.M = state.M;
-        this.N = state.N;
         this.conductor_pasajeros = new HashSet[M];
         for (int i = 0; i < M; i++) {
             conductor_pasajeros[i] = new HashSet<Short>();
@@ -159,6 +157,7 @@ public class State {
 
         pasajeros_cOrigen.remove(pasajero);
         pasajeros_cDestino.add(pasajero);
+
 
         searchOptimalRoute(cOrigen);
         searchOptimalRoute(cDestino);
@@ -248,6 +247,23 @@ public class State {
 
     public HashSet PasajerosDeConductor(short conductor) {
         return conductor_pasajeros[conductor];
+    }
+
+    private void  searchOptimalRouteAlternativo(int c) {
+        Util u = new Util();
+        int[] paradasPasajeros = new int[conductor_pasajeros[c].size()*2];
+        paradasPasajeros[0] = c;
+        paradasPasajeros[paradasPasajeros.length -1] = c+N;
+        int i = 1;
+        for (Short x: conductor_pasajeros[c]) {
+            if(x != c) {
+                paradasPasajeros[i] = x;
+                paradasPasajeros[i+1] = x+N;
+                i = i +2;
+            }
+        }
+        distancia_ruta_optima[c] = u.dijkstra(N, paradasPasajeros ,c, distancias);
+
     }
 
     private void searchOptimalRoute(int conductor) {
