@@ -14,11 +14,11 @@ public class Main {
         State s = new State(new Usuarios(10, 4, 1));
         s.ImprimirDistancias();
         s.ImprimirPosiciones();
-        s.donkeyInit();
+        //s.donkeyInit();
         System.out.println("Donkey Init" + s);
         s.averageInit();
         System.out.println("Average Init" + s);
-        s.minRouteInit();
+        //s.minRouteInit();
         System.out.println("Min Route Init" + s);
 
         TSPHillClimbingSearch(s);
@@ -28,7 +28,7 @@ public class Main {
     private static void TSPHillClimbingSearch(State myState) {
         System.out.println("\nTSP HillClimbing  -->");
         try {
-            Problem problem =  new Problem(myState,new SuccessorFunction(), new MyGoalTest(),new IHeuristicFunctionDistance());
+            Problem problem =  new Problem(myState,new ConductoresSuccessorFunction(), new MyGoalTest(),new IHeuristicFunctionDistance());
             Search search =  new HillClimbingSearch();
             SearchAgent agent = new SearchAgent(problem,search);
 
