@@ -6,13 +6,10 @@ public class Main {
         s.ImprimirDistancias();
         s.ImprimirPosiciones();
         s.donkeyInit();
-        System.out.println("Donkey Init");
-        s.ImprimirConductores();
+        System.out.println("Donkey Init" + s);
         s.averageInit();
-        System.out.println("Average Init");
-        s.ImprimirConductores();
+        System.out.println("Average Init" + s);
         s.minRouteInit();
-        System.out.println("Min Route Init");
-        s.ImprimirConductores();
+        System.out.println("Min Route Init" + s);
     }
 }

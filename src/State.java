@@ -28,22 +28,24 @@ public class State {
     }
 
     public void ImprimirConductores() {
+        System.out.print(this);
+    }
+
+    public String toString() {
         int i = 0;
+        String str = "\n";
         for (HashSet<Short> pasajeros : conductor_pasajeros) {
-            System.out.print(i + ") ");
-            for (Short pasajero : pasajeros) System.out.print(pasajero + "\t");
-            System.out.print("\n");
+            str += (i + ") ");
+            for (Short pasajero : pasajeros) str += (pasajero + "\t");
+            str += ("\n");
             i++;
         }
+        return str;
     }
 
     public State(Usuarios usuarios) {
 
         //inicializamos datos
-        for (int i = 0; i < M; i++) {
-            conductor_pasajeros[i] = new HashSet<Short>();
-        }
-        N = usuarios.size();
 
         //Contamos y colocamos primero para procesar los conductores
         ArrayList<Usuario> driversNUsers = new ArrayList<>();
@@ -56,6 +58,12 @@ public class State {
                 driversNUsers.add(user);
             }
         }
+
+        for (int i = 0; i < M; i++) {
+            conductor_pasajeros[i] = new HashSet<Short>();
+        }
+        N = usuarios.size();
+
 
         distancia_ruta_optima = new int[M];
         conductor_pasajeros = new HashSet[M];
@@ -152,8 +160,8 @@ public class State {
         pasajeros_cOrigen.remove(pasajero);
         pasajeros_cDestino.add(pasajero);
 
-        //recalcular distancia_ruta_optima[cOrigen]
-        //recalcular distancia_ruta_optima[cDestino]
+        searchOptimalRoute(cOrigen);
+        searchOptimalRoute(cDestino);
 
         return true;
     }
@@ -172,6 +180,33 @@ public class State {
         pasajeros_c1.add(pasajero2);
         pasajeros_c2.add(pasajero1);
 
+        searchOptimalRoute(c1);
+        searchOptimalRoute(c2);
+        return true;
+
+    }
+
+    //intercambia los coches/conductores que llevan a los pasajeros,  (cada conductor transportara al conjunto de pasajeros que llevaba el otro)
+    public boolean SwapConductor(short c1, short c2) {
+
+        HashSet<Short> pasajeros_c1 = conductor_pasajeros[c1];
+        HashSet<Short> pasajeros_c2 = conductor_pasajeros[c2];
+
+        if(pasajeros_c1.isEmpty() || pasajeros_c2.isEmpty())
+            return false;
+
+        //swap de el conjunto de pasajeros entero(incluido el propio conductor)
+        HashSet<Short> aux = pasajeros_c1;
+        pasajeros_c1 = pasajeros_c2;
+        pasajeros_c2 = aux;
+
+        //colocamos de nuevo los conductores en sus coches
+        pasajeros_c1.remove(c2);
+        pasajeros_c1.add(c1);
+
+        pasajeros_c2.remove(c1);
+        pasajeros_c2.add(c2);
+
         //recalcular distancia_ruta_optima[cOrigen]
         //recalcular distancia_ruta_optima[cDestino]
         return true;
@@ -179,7 +214,6 @@ public class State {
     }
 
     public boolean AnadirPasajero(short chofer, short pasajero){
-        if((chofer == pasajero) || conductor_pasajeros[chofer].contains(pasajero)) return false;
         conductor_pasajeros[chofer].add(pasajero);
         return true;
     }
@@ -199,6 +233,7 @@ public class State {
         int average = N/M - 1;
         int passenger_pos = M, j;
         for (int i = 0; i < M; i++) {
+            AnadirPasajero((short)i,(short)i);
             for (j = passenger_pos; j < passenger_pos + average; j++) AnadirPasajero((short)i,(short)j);
             passenger_pos = j;
             if (i == M - 1)
@@ -210,8 +245,87 @@ public class State {
         }
     }
 
+
     public HashSet PasajerosDeConductor(short conductor) {
         return conductor_pasajeros[conductor];
+    }
+
+    private void searchOptimalRoute(int conductor) {
+        int cantidadDePasajeros = conductor_pasajeros[conductor].size();
+        int[] pasajeros = new int[cantidadDePasajeros - 1];
+        int[] ruta = new int[cantidadDePasajeros*2];
+        ruta[0] = conductor;
+        ruta[cantidadDePasajeros*2-1] = conductor + N;
+        int[] pasajerosActuales = new int[2];
+        pasajerosActuales[0] = pasajerosActuales[1] = -1;
+        int lugarActual = 0;
+        boolean[] yaRecogidos = new boolean[cantidadDePasajeros];
+        boolean[] yaDejados = new boolean[cantidadDePasajeros];
+        Short iterator = 0;
+        for (Short pasajero: conductor_pasajeros[conductor]) {
+            if (pasajero != conductor) {
+                pasajeros[iterator] = pasajero;
+                yaRecogidos[iterator] = false;
+                yaDejados[iterator] = false;
+                iterator++;
+            }
+        }
+        distancia_ruta_optima[conductor] = searchOptimalRouteAux(ruta, pasajeros, pasajerosActuales, yaRecogidos, yaDejados, lugarActual);
+    }
+
+    private int searchOptimalRouteAux(int[] ruta, int[] pasajeros, int[] pasajerosActuales, boolean[] yaRecogidos, boolean[] yaDejados, int lugarActual) {
+        lugarActual++;
+        int bestLength = 50000;
+        if (lugarActual == ruta.length - 1) {
+            bestLength = measureLength(ruta);
+        } else {
+            int possibleBestLength;
+            int lugarVacio = -1;
+            if (pasajerosActuales[0] == -1) {
+                lugarVacio = 0;
+            } else if (pasajerosActuales[1] == -1) {
+                lugarVacio = 1;
+            }
+            if (lugarVacio != -1) {
+                for(int i = 0; i < yaRecogidos.length; i++) {
+                    if (!yaRecogidos[i]) {
+                        ruta[lugarActual] = pasajeros[i];
+                        pasajerosActuales[lugarVacio] = i;
+                        yaRecogidos[i] = true;
+                        possibleBestLength = searchOptimalRouteAux(ruta, pasajeros, pasajerosActuales, yaRecogidos, yaDejados, lugarActual);
+                        if (possibleBestLength < bestLength) {
+                            bestLength = possibleBestLength;
+                        }
+                        yaRecogidos[i] = false;
+                    }
+                }
+                pasajerosActuales[lugarVacio] = -1;
+            }
+            for (int i = 0; i < 2; i++) {
+                int pasajeroActualAux = pasajerosActuales[i];
+                if (pasajeroActualAux != -1) {
+                    ruta[lugarActual] = pasajeros[pasajeroActualAux] + N;
+                    pasajerosActuales[i] = -1;
+                    yaDejados[pasajeroActualAux] = true;
+                    possibleBestLength = searchOptimalRouteAux(ruta, pasajeros, pasajerosActuales, yaRecogidos, yaDejados, lugarActual);
+                    if (possibleBestLength < bestLength) {
+                        bestLength = possibleBestLength;
+                    }
+                    yaDejados[pasajeroActualAux] = false;
+                }
+                pasajerosActuales[i] = pasajeroActualAux;
+            }
+        }
+        lugarActual--;
+        return bestLength;
+    }
+
+    private int measureLength(int[] ruta) {
+        int length = 0;
+        for(int i = 0; i < ruta.length -1; i++) {
+            length += distancias[ruta[i]][ruta[i+1]];
+        }
+        return length;
     }
 
     public void minRouteInit() {
@@ -222,6 +336,7 @@ public class State {
         for (int i = M; i < N; i++) pasajerosDisponibles.add((short) i);
 
         for (int i = 0; i < M; i++) {
+            AnadirPasajero((short)i,(short)i);
             if (pasajerosDisponibles.isEmpty()) break;
             restDistancia = 0;
             minDistancia = distancias[i][N + i];
