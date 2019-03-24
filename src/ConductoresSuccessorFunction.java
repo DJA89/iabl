@@ -19,7 +19,7 @@ public class ConductoresSuccessorFunction implements SuccessorFunction {
         IHeuristicFunctionDistance ihf = new IHeuristicFunctionDistance();
         double heuristicValue;
         short conductoresTotales = currentState.GetConductoresTotales();
-        System.out.println("distancia optima actual: " + ihf.getHeuristicValue(currentState));
+        //System.out.println("distancia optima actual: " + ihf.getHeuristicValue(currentState));
 
         for (short conductor1 = 0; conductor1 < conductoresTotales - 1; conductor1++) {
             for(short conductor2 = (short) (conductor1 + 1); conductor2 < conductoresTotales; conductor2++) {
@@ -37,7 +37,7 @@ public class ConductoresSuccessorFunction implements SuccessorFunction {
                             String S = "Intercambiamos al pasajero " + pasajero1 + " del conductor " + conductor1 +
                                     " con el pasajero " + pasajero2 + " del conductor " + conductor2 +
                                     ". Nuevo valor: " + heuristicValue;
-                            System.out.println("posible nueva distancia óptima: " + heuristicValue);
+                            //System.out.println("posible nueva distancia óptima: " + heuristicValue);
                             retVal.add(new Successor(S, newState));
                         }
                     }
@@ -58,7 +58,7 @@ public class ConductoresSuccessorFunction implements SuccessorFunction {
                         heuristicValue = ihf.getHeuristicValue(newState);
                         String S = "Movemos al pasajero " + pasajero + " del conductor " + conductor1 +
                                 " al conductor " + conductor2 + ". Nuevo valor: " + heuristicValue;
-                        System.out.println("posible nueva distancia óptima: " + heuristicValue);
+                        //System.out.println("posible nueva distancia óptima: " + heuristicValue);
                         retVal.add(new Successor(S, newState));
                     }
                 }
