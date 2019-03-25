@@ -12,6 +12,7 @@ public class State {
     private static int[][] distancias;      // distancias(i,j), donde por ejemplo 'i' es el numero de pasajero si queremos su punto de recogida, o i+N para el punto de dejada
     private static Position[][] usersInfo;  // coordenadas de origen y destino de cada uno de los usuarios, usersInfo[0 - M-1] corresponde a los conductores
     private static int maxDistancia = 300;
+    private short conductoresLibres;
 
     public void ImprimirDistancias() {
         for (int i = 0; i < distancias.length; i++) {
@@ -50,6 +51,7 @@ public class State {
         //Contamos y colocamos primero para procesar los conductores
         ArrayList<Usuario> driversNUsers = new ArrayList<>();
         M = 0;
+        conductoresLibres = 0;
         for (Usuario user : usuarios) {
             if (user.isConductor()) {
                 driversNUsers.add(0, user);
@@ -162,8 +164,14 @@ public class State {
 
         if (conductor_pasajeros[cOrigen].size() > 0) {
             searchOptimalRoute(cOrigen);
+        } else {
+            distancia_ruta_optima[cOrigen] = 0;
+            conductoresLibres++;
         }
         searchOptimalRoute(cDestino);
+        if (conductor_pasajeros[cDestino].size() == 1) {
+            conductoresLibres--;
+        }
 
         return true;
     }
@@ -228,6 +236,10 @@ public class State {
     public void donkeyInit(){
         inicioPasajeros();
         for(short i=0;i<N;i++) AnadirPasajero((short) 0,i);
+        for(int i = 0; i < M; i++) {
+            searchOptimalRoute(i);
+        }
+        conductoresLibres = 1;
     }
 
     public void averageInit() {
@@ -248,6 +260,7 @@ public class State {
         for(int i = 0; i < M; i++) {
             searchOptimalRoute(i);
         }
+        conductoresLibres = 0;
     }
 
 
@@ -379,6 +392,7 @@ public class State {
                     restDistancia = minDistancia - distancias[pasajero][i];
                 }
             }
+            conductoresLibres = 0;
         }
         //Cabe la posibilidad de no encontrar una solucion optima, por lo que, si es que han sobrado
         //pasajeros disponibles, se los distribuye equitativamente entre los conductores
@@ -402,6 +416,22 @@ public class State {
                 }
             }
         }
+        for(int i = 0; i < M; i++) {
+            searchOptimalRoute(i);
+        }
       }
+
+      public short numeroDeConductoresActivos() {
+        return conductoresLibres;
+      }
+
+    public double distanciaTotal() {
+        int currentLength = 0;
+        for (int i = 0; i < M; i++) {
+            currentLength += distancia_ruta_optima[i];
+        }
+
+        return (currentLength);
+    }
 
 }

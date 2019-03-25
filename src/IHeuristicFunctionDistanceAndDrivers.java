@@ -17,7 +17,7 @@ public class IHeuristicFunctionDistanceAndDrivers implements HeuristicFunction  
         int conductoresTotales = sState.GetConductoresTotales();
         for (int i = 0; i < conductoresTotales; i++) {
             currentLength = routesDistance[i];
-            if (currentLength <= 300) {
+            if (currentLength <= 150) {
                 retValue += (currentLength^2)/(-75.0) + currentLength * 50;
             } else {
                 retValue += currentLength^2;
