@@ -11,7 +11,7 @@ import java.util.Properties;
 public class Main {
 
     public static void main(String[] args) {
-        State s = new State(new Usuarios(10, 4, 1));
+        State s = new State(new Usuarios(200, 100, 1234));
         s.ImprimirDistancias();
         s.ImprimirPosiciones();
         //s.donkeyInit();
@@ -28,6 +28,8 @@ public class Main {
     private static void TSPHillClimbingSearch(State myState) {
         System.out.println("\nTSP HillClimbing  -->");
         try {
+            long startTime = System.currentTimeMillis();
+
             Problem problem =  new Problem(myState,new ConductoresSuccessorFunction(), new MyGoalTest(),new IHeuristicFunctionDistance());
             Search search =  new HillClimbingSearch();
             SearchAgent agent = new SearchAgent(problem,search);
@@ -35,6 +37,10 @@ public class Main {
             System.out.println();
             printActions(agent.getActions());
             printInstrumentation(agent.getInstrumentation());
+
+            long stopTime = System.currentTimeMillis();
+            long elapsedTime = stopTime - startTime;
+            System.out.println("Tiemo de ejecución: " + elapsedTime);
         } catch (Exception e) {
             e.printStackTrace();
         }
