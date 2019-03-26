@@ -217,8 +217,11 @@ public class State {
         pasajeros_c2.remove(c1);
         pasajeros_c2.add(c2);
 
-        searchOptimalRoute(c1);
-        searchOptimalRoute(c2);
+        conductor_pasajeros[c1] = pasajeros_c1;
+        conductor_pasajeros[c2] = pasajeros_c2;
+
+        searchOptimalRouteAlternativo(c1);
+        searchOptimalRouteAlternativo(c2);
         return true;
 
     }
@@ -237,7 +240,7 @@ public class State {
         inicioPasajeros();
         for(short i=0;i<N;i++) AnadirPasajero((short) 0,i);
         for(int i = 0; i < M; i++) {
-            searchOptimalRoute(i);
+            searchOptimalRouteAlternativo(i);
         }
         conductoresLibres = 1;
     }
@@ -417,7 +420,7 @@ public class State {
             }
         }
         for(int i = 0; i < M; i++) {
-            searchOptimalRoute(i);
+            searchOptimalRouteAlternativo(i);
         }
       }
 

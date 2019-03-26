@@ -14,6 +14,7 @@ public class Util {
 
 
     public int backtracking(int N, int[] paradasPasajeros, int conductor, int[][] distancias) {
+        //Inicializamos
         this.distancias = distancias;
         this.conductor = conductor;
         this.N = N;
@@ -22,7 +23,7 @@ public class Util {
         paradasCompletadas = new boolean[paradasPasajeros.length];
         resultados = new PriorityQueue<>();
 
-
+        //Iniciamos backtracking con parada i = 1, distancia actual = 0, pasajero anterior = conductor, sentados = 1
         i_backtracking(1, 0, conductor, 1);
         return resultados.peek();
     }
