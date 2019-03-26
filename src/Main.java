@@ -7,11 +7,12 @@ import aima.search.informed.HillClimbingSearch;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.math.*;
 
 public class Main {
 
     public static void main(String[] args) {
-        State s = new State(new Usuarios(60, 35, 1234));
+        State s = new State(new Usuarios(40, 20, 1234));
         s.ImprimirDistancias();
         s.ImprimirPosiciones();
         //s.donkeyInit();
@@ -22,6 +23,7 @@ public class Main {
         System.out.println("Min Route Init" + s);
 
         TSPHillClimbingSearch(s);
+
     }
 
 
@@ -30,7 +32,7 @@ public class Main {
         try {
             long startTime = System.currentTimeMillis();
 
-            Problem problem =  new Problem(myState,new ConductoresSuccessorFunction(), new MyGoalTest(),new IHeuristicFunctionDistance());
+            Problem problem =  new Problem(myState,new ConductoresSuccessorFunctionExperiments(), new MyGoalTest(),new IHeuristicFunctionDistanceAndDrivers());
             Search search =  new HillClimbingSearch();
             SearchAgent agent = new SearchAgent(problem,search);
 

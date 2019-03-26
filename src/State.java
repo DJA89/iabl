@@ -103,6 +103,14 @@ public class State {
         return m;
     }
 
+    public int GetPasajeros(int c) {
+        return conductor_pasajeros[c].size();
+    }
+
+    public int GetTotalUsuarios() {
+        return N;
+    }
+
     public short GetConductoresTotales() {
         return M;
     }

@@ -23,7 +23,7 @@ public class Util {
         paradasCompletadas = new boolean[paradasPasajeros.length];
         resultados = new PriorityQueue<>();
 
-        computeMinDistancia();
+        //computeMinDistancia();
         //Iniciamos backtracking con parada i = 1, distancia actual = 0, pasajero anterior = conductor, sentados = 1
         i_backtracking(1, 0, conductor, 1);
         return resultados.peek();
@@ -31,7 +31,7 @@ public class Util {
 
     private void i_backtracking(int i, int d, int pAnterior, int sentados) {
         int n = paradasPasajeros.length;
-        if (!resultados.isEmpty() && d + dmin*(n-i-2) + distancias[pAnterior][conductor + N] >= resultados.peek()) return;
+        if (!resultados.isEmpty() && d + distancias[pAnterior][conductor + N] >= resultados.peek()) return;
         if (i == n - 1) {
             resultados.add(d + distancias[pAnterior][conductor + N]);
             return;

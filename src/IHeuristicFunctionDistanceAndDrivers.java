@@ -12,6 +12,8 @@ public class IHeuristicFunctionDistanceAndDrivers implements HeuristicFunction  
     public double getHeuristicValue(Object state) {
         State sState = (State) state;
         int[] routesDistance = sState.GetDistancia_ruta_optima();
+
+
         int retValue = 0;
         int currentLength;
         int conductoresTotales = sState.GetConductoresTotales();
@@ -24,6 +26,16 @@ public class IHeuristicFunctionDistanceAndDrivers implements HeuristicFunction  
             }
         }
 
-        return (retValue);
+        int N = sState.GetTotalUsuarios();
+        int M = sState.GetConductoresTotales();
+        int k1 = 100;
+        int hConductores = 0;
+        for(int i = 0; i < conductoresTotales; i++) {
+            int x = sState.GetPasajeros(i);
+            hConductores += (4 * k1 / (N ^ 2)) * x^2 + (4*k1/N)*x;
+        }
+        return retValue + k1*hConductores;
+
+
     }
 }
