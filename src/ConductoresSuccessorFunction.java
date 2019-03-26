@@ -15,7 +15,7 @@ public class ConductoresSuccessorFunction implements SuccessorFunction {
     public List getSuccessors(Object aState) {
         ArrayList retVal = new ArrayList();
         State currentState = (State) aState;
-        System.out.println("Estado actual" + currentState);
+        //System.out.println("Estado actual" + currentState);
         IHeuristicFunctionDistance ihf = new IHeuristicFunctionDistance();
         double heuristicValue;
         short conductoresTotales = currentState.GetConductoresTotales();
@@ -36,7 +36,7 @@ public class ConductoresSuccessorFunction implements SuccessorFunction {
                             heuristicValue = ihf.getHeuristicValue(newState);
                             String S = "Intercambiamos al pasajero " + pasajero1 + " del conductor " + conductor1 +
                                     " con el pasajero " + pasajero2 + " del conductor " + conductor2 +
-                                    ". Nuevo valor: " + heuristicValue;
+                                    ". Nuevo valor: " + heuristicValue + "; Número total de conductores: " + newState.numeroDeConductoresActivos() + "; distancia total: " + newState.distanciaTotal();
                             //System.out.println("posible nueva distancia óptima: " + heuristicValue);
                             retVal.add(new Successor(S, newState));
                         }
@@ -57,7 +57,7 @@ public class ConductoresSuccessorFunction implements SuccessorFunction {
                     if (conductor2 != conductor1 && newState.MoverPasajero(conductor1, conductor2, pasajero)) {
                         heuristicValue = ihf.getHeuristicValue(newState);
                         String S = "Movemos al pasajero " + pasajero + " del conductor " + conductor1 +
-                                " al conductor " + conductor2 + ". Nuevo valor: " + heuristicValue;
+                                " al conductor " + conductor2 + ". Nuevo valor: " + heuristicValue + "; Número total de conductores: " + newState.numeroDeConductoresActivos() + "; distancia total: " + newState.distanciaTotal();
                         //System.out.println("posible nueva distancia óptima: " + heuristicValue);
                         retVal.add(new Successor(S, newState));
                     }
