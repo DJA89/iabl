@@ -272,19 +272,22 @@ public class State {
     }
 
     private void  searchOptimalRouteAlternativo(int c) {
-        Util u = new Util();
-        int[] paradasPasajeros = new int[conductor_pasajeros[c].size()*2];
-        paradasPasajeros[0] = c;
-        paradasPasajeros[paradasPasajeros.length -1] = c+N;
-        int i = 1;
-        for (Short x: conductor_pasajeros[c]) {
-            if(x != c) {
-                paradasPasajeros[i] = x;
-                paradasPasajeros[i+1] = x+N;
-                i = i +2;
+        if (conductor_pasajeros[c].size() != 0) {
+            Util u = new Util();
+            int[] paradasPasajeros = new int[conductor_pasajeros[c].size() * 2];
+            paradasPasajeros[0] = c;
+            paradasPasajeros[paradasPasajeros.length - 1] = c + N;
+            int i = 1;
+            for (Short x : conductor_pasajeros[c]) {
+                if (x != c) {
+                    paradasPasajeros[i] = x;
+                    paradasPasajeros[i + 1] = x + N;
+                    i = i + 2;
+                }
             }
+            distancia_ruta_optima[c] = u.backtracking(N, paradasPasajeros, c, distancias);
         }
-        distancia_ruta_optima[c] = u.backtracking(N,paradasPasajeros,c,distancias);
+        else distancia_ruta_optima[c] = 0;
 
     }
 

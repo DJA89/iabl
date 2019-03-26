@@ -11,7 +11,7 @@ import java.util.Properties;
 public class Main {
 
     public static void main(String[] args) {
-        State s = new State(new Usuarios(200, 100, 1234));
+        State s = new State(new Usuarios(60, 35, 1234));
         s.ImprimirDistancias();
         s.ImprimirPosiciones();
         //s.donkeyInit();
