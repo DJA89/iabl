@@ -163,12 +163,12 @@ public class State {
         pasajeros_cDestino.add(pasajero);
 
         if (conductor_pasajeros[cOrigen].size() > 0) {
-            searchOptimalRoute(cOrigen);
+            searchOptimalRouteAlternativo(cOrigen);
         } else {
             distancia_ruta_optima[cOrigen] = 0;
             conductoresLibres++;
         }
-        searchOptimalRoute(cDestino);
+        searchOptimalRouteAlternativo(cDestino);
         if (conductor_pasajeros[cDestino].size() == 1) {
             conductoresLibres--;
         }
@@ -190,8 +190,8 @@ public class State {
         pasajeros_c1.add(pasajero2);
         pasajeros_c2.add(pasajero1);
 
-        searchOptimalRoute(c1);
-        searchOptimalRoute(c2);
+        searchOptimalRouteAlternativo(c1);
+        searchOptimalRouteAlternativo(c2);
         return true;
 
     }
@@ -258,7 +258,7 @@ public class State {
                 }
         }
         for(int i = 0; i < M; i++) {
-            searchOptimalRoute(i);
+            searchOptimalRouteAlternativo(i);
         }
         conductoresLibres = 0;
     }
@@ -281,7 +281,7 @@ public class State {
                 i = i +2;
             }
         }
-        distancia_ruta_optima[c] = u.dijkstra(N, paradasPasajeros ,c, distancias);
+        distancia_ruta_optima[c] = u.backtracking(N,paradasPasajeros,c,distancias);
 
     }
 
