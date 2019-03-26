@@ -30,7 +30,7 @@ public class Main {
         try {
             long startTime = System.currentTimeMillis();
 
-            Problem problem =  new Problem(myState,new ConductoresSuccessorFunction(), new MyGoalTest(),new IHeuristicFunctionDistance());
+            Problem problem =  new Problem(myState,new ConductoresSuccessorFunctionExperiments(), new MyGoalTest(),new IHeuristicFunctionDistance());
             Search search =  new HillClimbingSearch();
             SearchAgent agent = new SearchAgent(problem,search);
 
