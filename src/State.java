@@ -115,6 +115,7 @@ public class State {
         for (int i = 0; i < M; i++) {
             distancia_ruta_optima[i] = distancia_vieja[i];
         }
+        this.conductoresLibres = state.numeroDeConductoresActivos();
     }
 
     public int GetConductoresActuales() {
@@ -406,6 +407,10 @@ public class State {
         }
 
         return (currentLength);
+    }
+
+    public int getPasajerosTotales() {
+        return N;
     }
 
 }
