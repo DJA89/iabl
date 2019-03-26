@@ -282,7 +282,7 @@ public class State {
                 i = i +2;
             }
         }
-        distancia_ruta_optima[c] = u.dijkstra(N, paradasPasajeros ,c, distancias);
+        distancia_ruta_optima[c] = u.backtracking(N,paradasPasajeros,c,distancias);
 
     }
 
