@@ -164,7 +164,6 @@ public class State {
 
         if (conductor_pasajeros[cOrigen].size() > 0) {
             searchOptimalRouteAlternativo(cOrigen);
-            conductoresLibres++;
         } else {
             distancia_ruta_optima[cOrigen] = 0;
             conductoresLibres++;
