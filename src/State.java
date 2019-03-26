@@ -2,6 +2,7 @@ import IA.Comparticion.Usuario;
 import IA.Comparticion.Usuarios;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Arrays;
 
 public class State {
 
@@ -296,21 +297,23 @@ public class State {
         int lugarActual = 0;
         boolean[] yaRecogidos = new boolean[cantidadDePasajeros];
         boolean[] yaDejados = new boolean[cantidadDePasajeros];
+        Arrays.fill(yaRecogidos, Boolean.FALSE);
+        Arrays.fill(yaDejados, Boolean.FALSE);
         Short iterator = 0;
         for (Short pasajero: conductor_pasajeros[conductor]) {
             if (pasajero != conductor) {
                 pasajeros[iterator] = pasajero;
-                yaRecogidos[iterator] = false;
-                yaDejados[iterator] = false;
                 iterator++;
             }
         }
+        IHeuristicFunctionDistance ihf = new IHeuristicFunctionDistance();
         distancia_ruta_optima[conductor] = searchOptimalRouteAux(ruta, pasajeros, pasajerosActuales, yaRecogidos, yaDejados, lugarActual);
+        System.out.println(conductor + ") " + distancia_ruta_optima[conductor] + " " + distanciaTotal() + " " + ihf.getHeuristicValue(this));
     }
 
     private int searchOptimalRouteAux(int[] ruta, int[] pasajeros, int[] pasajerosActuales, boolean[] yaRecogidos, boolean[] yaDejados, int lugarActual) {
         lugarActual++; //avancemos en la ruta
-        int bestLength = 50000;
+        int bestLength = Integer.MAX_VALUE;
         if (lugarActual == ruta.length - 1) { // Si llegamos al final de una ruta
             bestLength = measureLength(ruta); //Calculemos la distancia del recorrido total y devolvamos eso
         } else { //Si estamos construyendo la ruta (No es el último nodo)

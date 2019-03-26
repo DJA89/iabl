@@ -12,14 +12,14 @@ public class Main {
 
     public static void main(String[] args) {
         State s = new State(new Usuarios(200, 100, 1234));
-        s.ImprimirDistancias();
-        s.ImprimirPosiciones();
+        //s.ImprimirDistancias();
+        //s.ImprimirPosiciones();
         //s.donkeyInit();
-        System.out.println("Donkey Init" + s);
+        //System.out.println("Donkey Init" + s);
         s.averageInit();
         System.out.println("Average Init" + s);
         //s.minRouteInit();
-        System.out.println("Min Route Init" + s);
+        //System.out.println("Min Route Init" + s);
 
         TSPHillClimbingSearch(s);
     }
