@@ -9,7 +9,7 @@ public class Position {
 
     @Override
     public String toString() {
-        return "("+ String.valueOf(x) + "," + String.valueOf(y) + ")";
+        return "("+ x + "," + y + ")";
     }
 
 }
