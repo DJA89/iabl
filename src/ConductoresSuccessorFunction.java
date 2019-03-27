@@ -15,7 +15,7 @@ public class ConductoresSuccessorFunction implements SuccessorFunction {
     public List getSuccessors(Object aState) {
         ArrayList retVal = new ArrayList();
         State currentState = (State) aState;
-        //System.out.println("Estado actual" + currentState);
+        //System.out.println("Estado actual" + currentState.distanciaTotal());
         IHeuristicFunctionDistance ihf = new IHeuristicFunctionDistance();
         double heuristicValue;
         short conductoresTotales = currentState.GetConductoresTotales();
@@ -54,6 +54,9 @@ public class ConductoresSuccessorFunction implements SuccessorFunction {
                 //short pasajero = (short) it1.next();
                 for (short conductor2 = 0; conductor2 < conductoresTotales; conductor2++) {
                     State newState = new State(currentState);
+                    if(conductor1 == 11 && conductor2 == 99 && pasajero == 111){
+                        System.out.println("x");
+                    }
                     if (conductor2 != conductor1 && newState.MoverPasajero(conductor1, conductor2, pasajero)) {
                         heuristicValue = ihf.getHeuristicValue(newState);
                         String S = "Movemos al pasajero " + pasajero + " del conductor " + conductor1 +
