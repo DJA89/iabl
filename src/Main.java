@@ -30,7 +30,7 @@ public class Main {
 
     private static long elapsedTime;
     private static State goalState;
-    private static SimulatedAnnealingSearch search;
+    private static SimulatedAnnealingSearch search =  new SimulatedAnnealingSearch(500,10000,1 ,0.1);;
 
     private static void TSPHillClimbingSearch(State myState) {
         System.out.println("\nTSP HillClimbing  -->" + "\n");
