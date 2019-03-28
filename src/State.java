@@ -34,13 +34,27 @@ public class State {
     }
 
     public String toString() {
-        int i = 0;
+
+        Util util = new Util();
         String str = "\n";
-        for (HashSet<Short> pasajeros : conductor_pasajeros) {
-            str += (i + ") ");
-            for (Short pasajero : pasajeros) str += (pasajero + "\t");
-            str += ("\n");
-            i++;
+
+        for (int i = 0; i < M; i++) {
+
+            str += (i + ")\t");
+
+            int[] paradasPasajeros = GetParadasPasajeros(i);
+            if(paradasPasajeros.length > 0)
+                paradasPasajeros = util.GetRutaOptima(N,paradasPasajeros,i,distancias);
+
+            String s;
+            for(int parada : paradasPasajeros){
+
+                if(parada >= N) s = parada-N + "'";
+                else s = String.valueOf(parada);
+                if(parada != i+N) str += s + "\t->\t";
+                else str += s;
+            }
+            str += "\n";
         }
         return str;
     }
@@ -272,10 +286,10 @@ public class State {
         return conductor_pasajeros[conductor];
     }
 
-    private void  searchOptimalRouteAlternativo(int c) {
-        if (conductor_pasajeros[c].size() != 0) {
-            Util u = new Util();
-            int[] paradasPasajeros = new int[conductor_pasajeros[c].size() * 2];
+    private int[] GetParadasPasajeros(int c) {
+        int n = conductor_pasajeros[c].size();
+        int[] paradasPasajeros = new int[n * 2];
+        if(n != 0) {
             paradasPasajeros[0] = c;
             paradasPasajeros[paradasPasajeros.length - 1] = c + N;
             int i = 1;
@@ -286,83 +300,20 @@ public class State {
                     i = i + 2;
                 }
             }
+        }
+        return paradasPasajeros;
+    }
+
+    private void  searchOptimalRouteAlternativo(int c) {
+        if (conductor_pasajeros[c].size() != 0) {
+            Util u = new Util();
+            int[] paradasPasajeros = GetParadasPasajeros(c);
             distancia_ruta_optima[c] = u.backtracking(N, paradasPasajeros, c, distancias);
         }
         else distancia_ruta_optima[c] = 0;
 
     }
 
-    private void searchOptimalRoute(int conductor) {
-        int cantidadDePasajeros = conductor_pasajeros[conductor].size() - 1;
-        int[] pasajeros = new int[cantidadDePasajeros];
-        int[] ruta = new int[(cantidadDePasajeros+1)*2];
-        ruta[0] = conductor;
-        ruta[(cantidadDePasajeros+1)*2-1] = conductor + N;
-        int[] pasajerosActuales = new int[2];
-        pasajerosActuales[0] = pasajerosActuales[1] = -1;
-        int lugarActual = 0;
-        boolean[] yaRecogidos = new boolean[cantidadDePasajeros];
-        boolean[] yaDejados = new boolean[cantidadDePasajeros];
-        Arrays.fill(yaRecogidos, Boolean.FALSE);
-        Arrays.fill(yaDejados, Boolean.FALSE);
-        Short iterator = 0;
-        for (Short pasajero: conductor_pasajeros[conductor]) {
-            if (pasajero != conductor) {
-                pasajeros[iterator] = pasajero;
-                iterator++;
-            }
-        }
-        IHeuristicFunctionDistance ihf = new IHeuristicFunctionDistance();
-        distancia_ruta_optima[conductor] = searchOptimalRouteAux(ruta, pasajeros, pasajerosActuales, yaRecogidos, yaDejados, lugarActual);
-        System.out.println(conductor + ") " + distancia_ruta_optima[conductor] + " " + distanciaTotal() + " " + ihf.getHeuristicValue(this));
-    }
-
-    private int searchOptimalRouteAux(int[] ruta, int[] pasajeros, int[] pasajerosActuales, boolean[] yaRecogidos, boolean[] yaDejados, int lugarActual) {
-        lugarActual++; //avancemos en la ruta
-        int bestLength = Integer.MAX_VALUE;
-        if (lugarActual == ruta.length - 1) { // Si llegamos al final de una ruta
-            bestLength = measureLength(ruta); //Calculemos la distancia del recorrido total y devolvamos eso
-        } else { //Si estamos construyendo la ruta (No es el último nodo)
-            int possibleBestLength; //variable para guardar candidatos a mejor distancia
-            int lugarVacio = -1; //variable para saber si hay lugar libre o no
-            if (pasajerosActuales[0] == -1) { //si no hay nadie en el primer lugar
-                lugarVacio = 0; //el primer lugar está vacío
-            } else if (pasajerosActuales[1] == -1) { //si no hay nadie en el segundo lugar
-                lugarVacio = 1; //el segundo lugar está vacío
-            }
-            if (lugarVacio != -1) { //si hay algún lugar vacío
-                for(int i = 0; i < yaRecogidos.length; i++) { //recorramos a ver quién todavía no fue recogido
-                    if (!yaRecogidos[i]) { //si el pasajero i no ha sido recogido aún
-                        ruta[lugarActual] = pasajeros[i]; //ponemos al pasajero i en el siguiente lugar de la ruta
-                        pasajerosActuales[lugarVacio] = i; //pongamos que el pasajero i ocupa uno de los lugares de pasajero
-                        yaRecogidos[i] = true; //marquemos que el pasajero i fue recogido
-                        possibleBestLength = searchOptimalRouteAux(ruta, pasajeros, pasajerosActuales, yaRecogidos, yaDejados, lugarActual); //llamemos a la función recursiva para llenar los siguientes lugares, nos devolverá el largo de la mejor ruta que encuentre
-                        if (possibleBestLength < bestLength) { //si el largo recogiendo al pasajero i siguiente en la ruta es el mejor que hemos encontrado hasta ahora
-                            bestLength = possibleBestLength; //marcarlo como el mejor largo que hemos encontrado hasta ahora
-                        }
-                        yaRecogidos[i] = false; //ya probamos recogiendo al pasajero i, marquemos que no fue recogido y terminemos para probar a recoger a otro pasajero
-                    }
-                }
-                pasajerosActuales[lugarVacio] = -1; //Marquemos que el lugar que estaba libre antes de inicar el for sigue libre
-            }
-            for (int i = 0; i < 2; i++) { //Miremos si podemos dejar a alguno de los pasajeros que estamos llevando
-                int pasajeroActualAux = pasajerosActuales[i]; //este es uno de los pasajeros que estamos llevando
-                if (pasajeroActualAux != -1) { //si hay un pasajero en el asiento (no está vacío)
-                    ruta[lugarActual] = pasajeros[pasajeroActualAux] + N; //marquemos en la ruta que dejamos a este pasajero
-                    pasajerosActuales[i] = -1; //marquemos que el asiento quedó vacío
-                    yaDejados[pasajeroActualAux] = true; //marquemos que dejamos al pasajero i
-                    possibleBestLength = searchOptimalRouteAux(ruta, pasajeros, pasajerosActuales, yaRecogidos, yaDejados, lugarActual); //llamemos a la función recursiva para llenar los siguientes lugares, nos devolverá el largo de la mejor ruta que encuentre
-                    if (possibleBestLength < bestLength) { //si el largo dejando al pasajero i siguiente en la ruta es el mejor que hemos encontrado hasta ahora
-                        bestLength = possibleBestLength; //marcarlo como el mejor largo que hemos encontrado hasta ahora
-                    }
-                    yaDejados[pasajeroActualAux] = false; //ya probamos dejando al pasajero i, marquemos que no fue dejado aún y terminemos para probar dejar a otro pasajero que estemos llevando ahora
-                }
-                pasajerosActuales[i] = pasajeroActualAux; //Marquemos que i vuelve a estar ocupando el asiento que había dejado libre cuando lo dejamos
-            }
-        }
-        lugarActual--; //volvamos un paso atrás en la ruta
-        return bestLength; //devolvamos la mejor ruta que hemos encontrado hasta ahora
-    }
 
     private int measureLength(int[] ruta) {
         int length = 0;
