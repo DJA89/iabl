@@ -13,30 +13,18 @@ import java.awt.Color;
 public class Main {
 
     public static void main(String[] args) throws IOException{
-        adjustmentK();
-        /*
-        Plot plot = Plot.plot(Plot.plotOpts().
-                title("TSPSimulatedAnnealingSearch").
-                legend(Plot.LegendFormat.BOTTOM)).
-                xAxis("Usuarios", Plot.axisOpts().
-                        range(0, 200)).
-                yAxis("Tiempo", Plot.axisOpts().
-                        range(0, 200));
-        Plot.Data datos = Plot.data();
-        for(int i=1;i<=20;i++){
-            State s = new State(new Usuarios(10*i, 5*i, 1234));
-            s.averageInit();
-            TSPSimulatedAnnealingSearch(s);
-            datos.xy(10*i,elapsedTime);
-
-        }
-        plot.series("Data", datos,
-                Plot.seriesOpts().
-                        marker(Plot.Marker.DIAMOND).
-                        markerColor(Color.GREEN).
-                        color(Color.BLACK));
-        plot.save("TSPSimulatedAnnealingSearch", "png");
-        */
+        //adjustmentK();
+        State s = new State(new Usuarios(50, 25, 1234));
+        //s.ImprimirDistancias();
+        //s.ImprimirPosiciones();
+        //s.donkeyInit();
+        //System.out.println("Donkey Init" + s);
+        s.averageInit();
+        System.out.println("Average Init" + s);
+        //s.minRouteInit();
+        //System.out.println("Min Route Init" + s);
+        TSPSimulatedAnnealingSearch(s);
+        TSPHillClimbingSearch(s);
     }
 
 
@@ -110,27 +98,32 @@ public class Main {
         double hillClimbingDistance = goalState.distanciaTotal();
         Plot plot = Plot.plot(Plot.plotOpts().
                 title("TSPSimulatedAnnealingSearch").
-                legend(Plot.LegendFormat.BOTTOM)).
-                xAxis("k", Plot.axisOpts().
-                        range(0, 30)).
-                yAxis("Tiempo", Plot.axisOpts().
-                        range(0, 200));
-        Plot.Data datos = Plot.data();
-        int bestK = 1;
+                legend(Plot.LegendFormat.BOTTOM));
+        Plot.Data line = Plot.data();
+        int bestK = 1, iter = 2;
+        double maxX, maxY, differ, maxDistance = 0, distance;
         double bestDistance = Double.MAX_VALUE;
-        for(int i=0;i<3;i++){
+        for(int i=0;i<iter;i++){
             int k = (int) Math.pow(5,i);
             System.out.println("K: " + k);
             search =  new SimulatedAnnealingSearch(500,10000,k,0.1);
             TSPSimulatedAnnealingSearch(s);
-            datos.xy(k,elapsedTime);
-            if(bestDistance > Math.abs(goalState.distanciaTotal() - hillClimbingDistance)){
-                bestDistance = goalState.distanciaTotal();
+            distance = goalState.distanciaTotal();
+            line.xy(k,distance);
+            differ = Math.abs(distance - hillClimbingDistance);
+            if(bestDistance > differ){
+                bestDistance = differ;
                 bestK = k;
             }
-
+            if(maxDistance < distance) maxDistance = distance;
+            if(i == iter - 1){
+                plot.xAxis("k", Plot.axisOpts().
+                        range(0, k)).
+                        yAxis("Distancia", Plot.axisOpts().
+                                range(0, maxDistance*1.05));
+            }
         }
-        plot.series("Data", datos,
+        plot.series("Data", line,
                 Plot.seriesOpts().
                         marker(Plot.Marker.DIAMOND).
                         markerColor(Color.GREEN).
