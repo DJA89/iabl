@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Iterator;
 
-public class ConductoresSuccessorFunctionExperiments implements SuccessorFunction {
+public class ConductoresSuccessorFunction2 implements SuccessorFunction {
     @SuppressWarnings("unchecked")
 
 
@@ -82,4 +82,3 @@ public class ConductoresSuccessorFunctionExperiments implements SuccessorFunctio
 }
 
 
-//~ Formatted by Jindent --- http://www.jindent.com
