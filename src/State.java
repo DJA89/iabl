@@ -2,7 +2,7 @@ import IA.Comparticion.Usuario;
 import IA.Comparticion.Usuarios;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Arrays;
+import java.util.Random;
 
 public class State {
 
@@ -51,11 +51,18 @@ public class State {
 
                 if(parada >= N) s = parada-N + "'";
                 else s = String.valueOf(parada);
-                if(parada != i+N) str += s + "\t->\t";
+                if(parada != i+N) str += s + " ->\t";
                 else str += s;
             }
             str += "\n";
+
+
         }
+        int total_recorrido = 0;
+        for (int x: distancia_ruta_optima) {
+            total_recorrido += x;
+        }
+        str += "\nDistancia total: " + total_recorrido + "\n";
         return str;
     }
 
@@ -251,13 +258,20 @@ public class State {
         for(int i=0;i<M;i++) conductor_pasajeros[i] = new HashSet<Short>();
     }
 
-    public void donkeyInit(){
+    public void randomInit() {
+        Random rand = new Random();
         inicioPasajeros();
-        for(short i=0;i<N;i++) AnadirPasajero((short) 0,i);
+        for(short i = 0; i < M; i++) {
+            AnadirPasajero(i,i);
+        }
+        for(short k = (short) (M -1);k < N; k++) {
+            AnadirPasajero((short)rand.nextInt(M), k);
+        }
+
         for(int i = 0; i < M; i++) {
             searchOptimalRouteAlternativo(i);
         }
-        conductoresLibres = 1;
+        conductoresLibres = 0;
     }
 
     public void averageInit() {
