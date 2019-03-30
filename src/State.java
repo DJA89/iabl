@@ -326,51 +326,6 @@ public class State {
         }
         else distancia_ruta_optima[c] = 0;
 
-    private int searchOptimalRouteAux(int[] ruta, int[] pasajeros, int[] pasajerosActuales, boolean[] yaRecogidos, boolean[] yaDejados, int lugarActual) {
-        lugarActual++; //avancemos en la ruta
-        int bestLength = Integer.MAX_VALUE;
-        if (lugarActual == ruta.length - 1) { // Si llegamos al final de una ruta
-            bestLength = measureLength(ruta); //Calculemos la distancia del recorrido total y devolvamos eso
-        } else { //Si estamos construyendo la ruta (No es el último nodo)
-            int possibleBestLength; //variable para guardar candidatos a mejor distancia
-            int lugarVacio = -1; //variable para saber si hay lugar libre o no
-            if (pasajerosActuales[0] == -1) { //si no hay nadie en el primer lugar
-                lugarVacio = 0; //el primer lugar está vacío
-            } else if (pasajerosActuales[1] == -1) { //si no hay nadie en el segundo lugar
-                lugarVacio = 1; //el segundo lugar está vacío
-            }
-            if (lugarVacio != -1) { //si hay algún lugar vacío
-                for(int i = 0; i < yaRecogidos.length; i++) { //recorramos a ver quién todavía no fue recogido
-                    if (!yaRecogidos[i]) { //si el pasajero i no ha sido recogido aún
-                        ruta[lugarActual] = pasajeros[i]; //ponemos al pasajero i en el siguiente lugar de la ruta
-                        pasajerosActuales[lugarVacio] = i; //pongamos que el pasajero i ocupa uno de los lugares de pasajero
-                        yaRecogidos[i] = true; //marquemos que el pasajero i fue recogido
-                        possibleBestLength = searchOptimalRouteAux(ruta, pasajeros, pasajerosActuales, yaRecogidos, yaDejados, lugarActual); //llamemos a la función recursiva para llenar los siguientes lugares, nos devolverá el largo de la mejor ruta que encuentre
-                        if (possibleBestLength < bestLength) { //si el largo recogiendo al pasajero i siguiente en la ruta es el mejor que hemos encontrado hasta ahora
-                            bestLength = possibleBestLength; //marcarlo como el mejor largo que hemos encontrado hasta ahora
-                        }
-                        yaRecogidos[i] = false; //ya probamos recogiendo al pasajero i, marquemos que no fue recogido y terminemos para probar a recoger a otro pasajero
-                    }
-                }
-                pasajerosActuales[lugarVacio] = -1; //Marquemos que el lugar que estaba libre antes de inicar el for sigue libre
-            }
-            for (int i = 0; i < 2; i++) { //Miremos si podemos dejar a alguno de los pasajeros que estamos llevando
-                int pasajeroActualAux = pasajerosActuales[i]; //este es uno de los pasajeros que estamos llevando
-                if (pasajeroActualAux != -1) { //si hay un pasajero en el asiento (no está vacío)
-                    ruta[lugarActual] = pasajeros[pasajeroActualAux] + N; //marquemos en la ruta que dejamos a este pasajero
-                    pasajerosActuales[i] = -1; //marquemos que el asiento quedó vacío
-                    yaDejados[pasajeroActualAux] = true; //marquemos que dejamos al pasajero i
-                    possibleBestLength = searchOptimalRouteAux(ruta, pasajeros, pasajerosActuales, yaRecogidos, yaDejados, lugarActual); //llamemos a la función recursiva para llenar los siguientes lugares, nos devolverá el largo de la mejor ruta que encuentre
-                    if (possibleBestLength < bestLength) { //si el largo dejando al pasajero i siguiente en la ruta es el mejor que hemos encontrado hasta ahora
-                        bestLength = possibleBestLength; //marcarlo como el mejor largo que hemos encontrado hasta ahora
-                    }
-                    yaDejados[pasajeroActualAux] = false; //ya probamos dejando al pasajero i, marquemos que no fue dejado aún y terminemos para probar dejar a otro pasajero que estemos llevando ahora
-                }
-                pasajerosActuales[i] = pasajeroActualAux; //Marquemos que i vuelve a estar ocupando el asiento que había dejado libre cuando lo dejamos
-            }
-        }
-        lugarActual--; //volvamos un paso atrás en la ruta
-        return bestLength; //devolvamos la mejor ruta que hemos encontrado hasta ahora
     }
 
 
