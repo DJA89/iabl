@@ -5,26 +5,24 @@ import aima.search.framework.SearchAgent;
 import aima.search.informed.HillClimbingSearch;
 import aima.search.informed.SimulatedAnnealingSearch;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.awt.Color;
 
 public class Main {
 
     public static void main(String[] args) throws IOException{
-        //adjustmentK();
-        State s = new State(new Usuarios(50, 25, 1234));
+        //experimentSA();
+        //State s = new State(new Usuarios(50, 25, 1234));
         //s.ImprimirDistancias();
         //s.ImprimirPosiciones();
         //s.donkeyInit();
         //System.out.println("Donkey Init" + s);
-        s.averageInit();
-        System.out.println("Average Init" + s);
+        //s.averageInit();
+        //System.out.println("Average Init" + s);
         //s.minRouteInit();
         //System.out.println("Min Route Init" + s);
-        TSPSimulatedAnnealingSearch(s);
-        TSPHillClimbingSearch(s);
+        //TSPSimulatedAnnealingSearch(s);
+        //TSPHillClimbingSearch(s);
     }
 
 
@@ -91,6 +89,27 @@ public class Main {
         }
     }
 
+    private static void experimentSA(){
+        State s = new State(new Usuarios(50, 25, 1234));
+        int iter = 4;
+        double distance;
+        s.minRouteInit();
+        TSPHillClimbingSearch(s);
+        ArrayList<String> res = new ArrayList<String>();
+        for(int i=0; i<iter-1;i++){
+            for(int j=0; j<iter; j++){
+                int k = (int) Math.pow(5,i);
+                double l = Math.pow(10,-j);
+                search = new SimulatedAnnealingSearch(500,10000,k,l);
+                TSPSimulatedAnnealingSearch(s);
+                distance = goalState.distanciaTotal();
+                res.add("k: " + k + " l: " + l + " Costo: " + distance + " Tiempo: " + elapsedTime);
+            }
+        }
+        for(String r: res){
+            System.out.println(r);
+        }
+    }
     private static void adjustmentK() throws IOException{
         State s = new State(new Usuarios(50, 25, 1234));
         s.minRouteInit();
