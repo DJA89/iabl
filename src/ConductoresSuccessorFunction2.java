@@ -16,7 +16,7 @@ public class ConductoresSuccessorFunction2 implements SuccessorFunction {
         ArrayList retVal = new ArrayList();
         State currentState = (State) aState;
         //System.out.println("Estado actual" + currentState);
-        IHeuristicFunctionDistance ihf = new IHeuristicFunctionDistance();
+        IHeuristicFunctionDistanceAndDrivers ihf = new IHeuristicFunctionDistanceAndDrivers();
         double heuristicValue;
         short conductoresTotales = currentState.GetConductoresTotales();
         //System.out.println("distancia optima actual: " + ihf.getHeuristicValue(currentState));
@@ -36,7 +36,7 @@ public class ConductoresSuccessorFunction2 implements SuccessorFunction {
                             heuristicValue = ihf.getHeuristicValue(newState);
                             String S = "Intercambiamos al pasajero " + pasajero1 + " del conductor " + conductor1 +
                                     " con el pasajero " + pasajero2 + " del conductor " + conductor2 +
-                                    ". Nuevo valor: " + heuristicValue + "; Número total de conductores: " + newState.numeroDeConductoresActivos() + "; distancia total: " + newState.distanciaTotal();
+                                    ". Nuevo valor: " + heuristicValue + "; Número total de conductores libres: " + newState.numeroDeConductoresActivos() + "; distancia total: " + newState.distanciaTotal();
                             //System.out.println("posible nueva distancia óptima: " + heuristicValue);
                             retVal.add(new Successor(S, newState));
                         }
@@ -57,7 +57,7 @@ public class ConductoresSuccessorFunction2 implements SuccessorFunction {
                     if (conductor2 != conductor1 && newState.MoverPasajero(conductor1, conductor2, pasajero)) {
                         heuristicValue = ihf.getHeuristicValue(newState);
                         String S = "Movemos al pasajero " + pasajero + " del conductor " + conductor1 +
-                                " al conductor " + conductor2 + ". Nuevo valor: " + heuristicValue + "; Número total de conductores: " + newState.numeroDeConductoresActivos() + "; distancia total: " + newState.distanciaTotal();
+                                " al conductor " + conductor2 + ". Nuevo valor: " + heuristicValue + "; Número total de conductores libres: " + newState.numeroDeConductoresActivos() + "; distancia total: " + newState.distanciaTotal();
                         //System.out.println("posible nueva distancia óptima: " + heuristicValue);
                         retVal.add(new Successor(S, newState));
                     }
@@ -71,12 +71,11 @@ public class ConductoresSuccessorFunction2 implements SuccessorFunction {
                 if (newState.SwapConductor(conductor1, conductor2)) {
                     heuristicValue = ihf.getHeuristicValue(newState);
                     String S = "Intercambiar todos los pasajeros de " + conductor1 +
-                            " y " + conductor2 + ". Nuevo valor: " + heuristicValue + "; Número total de conductores: " + newState.numeroDeConductoresActivos() + "; distancia total: " + newState.distanciaTotal();
+                            " y " + conductor2 + ". Nuevo valor: " + heuristicValue + "; Número total de conductores libres: " + newState.numeroDeConductoresActivos() + "; distancia total: " + newState.distanciaTotal();
                     retVal.add(new Successor(S, newState));
                 }
             }
         }
-
         return retVal;
     }
 }
