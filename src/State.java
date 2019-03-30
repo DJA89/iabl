@@ -2,7 +2,7 @@ import IA.Comparticion.Usuario;
 import IA.Comparticion.Usuarios;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Arrays;
+import java.util.Random;
 
 public class State {
 
@@ -34,14 +34,35 @@ public class State {
     }
 
     public String toString() {
-        int i = 0;
+
+        Util util = new Util();
         String str = "\n";
-        for (HashSet<Short> pasajeros : conductor_pasajeros) {
-            str += (i + ") ");
-            for (Short pasajero : pasajeros) str += (pasajero + "\t");
-            str += ("\n");
-            i++;
+
+        for (int i = 0; i < M; i++) {
+
+            str += (i + ")\t");
+
+            int[] paradasPasajeros = GetParadasPasajeros(i);
+            if(paradasPasajeros.length > 0)
+                paradasPasajeros = util.GetRutaOptima(N,paradasPasajeros,i,distancias);
+
+            String s;
+            for(int parada : paradasPasajeros){
+
+                if(parada >= N) s = parada-N + "'";
+                else s = String.valueOf(parada);
+                if(parada != i+N) str += s + " ->\t";
+                else str += s;
+            }
+            str += "\n";
+
+
         }
+        int total_recorrido = 0;
+        for (int x: distancia_ruta_optima) {
+            total_recorrido += x;
+        }
+        str += "\nDistancia total: " + total_recorrido + "\n";
         return str;
     }
 
@@ -237,13 +258,20 @@ public class State {
         for(int i=0;i<M;i++) conductor_pasajeros[i] = new HashSet<Short>();
     }
 
-    public void donkeyInit(){
+    public void randomInit() {
+        Random rand = new Random();
         inicioPasajeros();
-        for(short i=0;i<N;i++) AnadirPasajero((short) 0,i);
+        for(short i = 0; i < M; i++) {
+            AnadirPasajero(i,i);
+        }
+        for(short k = (short) (M -1);k < N; k++) {
+            AnadirPasajero((short)rand.nextInt(M), k);
+        }
+
         for(int i = 0; i < M; i++) {
             searchOptimalRouteAlternativo(i);
         }
-        conductoresLibres = 1;
+        conductoresLibres = 0;
     }
 
     public void averageInit() {
@@ -272,10 +300,10 @@ public class State {
         return conductor_pasajeros[conductor];
     }
 
-    private void  searchOptimalRouteAlternativo(int c) {
-        if (conductor_pasajeros[c].size() != 0) {
-            Util u = new Util();
-            int[] paradasPasajeros = new int[conductor_pasajeros[c].size() * 2];
+    private int[] GetParadasPasajeros(int c) {
+        int n = conductor_pasajeros[c].size();
+        int[] paradasPasajeros = new int[n * 2];
+        if(n != 0) {
             paradasPasajeros[0] = c;
             paradasPasajeros[paradasPasajeros.length - 1] = c + N;
             int i = 1;
@@ -286,36 +314,17 @@ public class State {
                     i = i + 2;
                 }
             }
+        }
+        return paradasPasajeros;
+    }
+
+    private void  searchOptimalRouteAlternativo(int c) {
+        if (conductor_pasajeros[c].size() != 0) {
+            Util u = new Util();
+            int[] paradasPasajeros = GetParadasPasajeros(c);
             distancia_ruta_optima[c] = u.backtracking(N, paradasPasajeros, c, distancias);
         }
         else distancia_ruta_optima[c] = 0;
-
-    }
-
-    private void searchOptimalRoute(int conductor) {
-        int cantidadDePasajeros = conductor_pasajeros[conductor].size() - 1;
-        int[] pasajeros = new int[cantidadDePasajeros];
-        int[] ruta = new int[(cantidadDePasajeros+1)*2];
-        ruta[0] = conductor;
-        ruta[(cantidadDePasajeros+1)*2-1] = conductor + N;
-        int[] pasajerosActuales = new int[2];
-        pasajerosActuales[0] = pasajerosActuales[1] = -1;
-        int lugarActual = 0;
-        boolean[] yaRecogidos = new boolean[cantidadDePasajeros];
-        boolean[] yaDejados = new boolean[cantidadDePasajeros];
-        Arrays.fill(yaRecogidos, Boolean.FALSE);
-        Arrays.fill(yaDejados, Boolean.FALSE);
-        Short iterator = 0;
-        for (Short pasajero: conductor_pasajeros[conductor]) {
-            if (pasajero != conductor) {
-                pasajeros[iterator] = pasajero;
-                iterator++;
-            }
-        }
-        IHeuristicFunctionDistance ihf = new IHeuristicFunctionDistance();
-        distancia_ruta_optima[conductor] = searchOptimalRouteAux(ruta, pasajeros, pasajerosActuales, yaRecogidos, yaDejados, lugarActual);
-        System.out.println(conductor + ") " + distancia_ruta_optima[conductor] + " " + distanciaTotal() + " " + ihf.getHeuristicValue(this));
-    }
 
     private int searchOptimalRouteAux(int[] ruta, int[] pasajeros, int[] pasajerosActuales, boolean[] yaRecogidos, boolean[] yaDejados, int lugarActual) {
         lugarActual++; //avancemos en la ruta
@@ -363,6 +372,7 @@ public class State {
         lugarActual--; //volvamos un paso atrás en la ruta
         return bestLength; //devolvamos la mejor ruta que hemos encontrado hasta ahora
     }
+
 
     private int measureLength(int[] ruta) {
         int length = 0;

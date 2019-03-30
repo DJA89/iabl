@@ -10,19 +10,19 @@ import java.awt.Color;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException{
-        //experimentSA();
-        //State s = new State(new Usuarios(50, 25, 1234));
-        //s.ImprimirDistancias();
+    public static void main(String[] args) {
+
+        State s = new State(new Usuarios(200, 100, 3));
+        s.ImprimirDistancias();
         //s.ImprimirPosiciones();
         //s.donkeyInit();
-        //System.out.println("Donkey Init" + s);
         //s.averageInit();
-        //System.out.println("Average Init" + s);
-        //s.minRouteInit();
-        //System.out.println("Min Route Init" + s);
+        s.minRouteInit();
+        //s.randomInit();
+        System.out.println("Initial State" + s);
+
         //TSPSimulatedAnnealingSearch(s);
-        //TSPHillClimbingSearch(s);
+        TSPHillClimbingSearch(s);
     }
 
 
@@ -35,7 +35,7 @@ public class Main {
         try {
             long startTime = System.currentTimeMillis();
 
-            Problem problem =  new Problem(myState,new ConductoresSuccessorFunctionExperiments(), new MyGoalTest(),new IHeuristicFunctionDistance());
+            Problem problem =  new Problem(myState,new ConductoresSuccessorFunction2(), new MyGoalTest(),new IHeuristicFunctionDistance());
             Search search =  new HillClimbingSearch();
             SearchAgent agent = new SearchAgent(problem,search);
             long stopTime = System.currentTimeMillis();
@@ -57,6 +57,7 @@ public class Main {
             long startTime = System.currentTimeMillis();
 
             Problem problem =  new Problem(myState,new ConductoresSuccessorFunctionSA(), new MyGoalTest(),new IHeuristicFunctionDistance());
+            SimulatedAnnealingSearch search =  new SimulatedAnnealingSearch(1000,10000,15,0.1);
             //search.traceOn();
             SearchAgent agent = new SearchAgent(problem,search);
             long stopTime = System.currentTimeMillis();
