@@ -11,8 +11,10 @@ import java.awt.Color;
 public class Main {
 
     public static void main(String[] args) {
-
+        experimentSA();
+        /*
         State s = new State(new Usuarios(200, 100, 3));
+
         s.ImprimirDistancias();
         //s.ImprimirPosiciones();
         //s.donkeyInit();
@@ -23,6 +25,7 @@ public class Main {
 
         //TSPSimulatedAnnealingSearch(s);
         TSPHillClimbingSearch(s);
+        */
     }
 
 
