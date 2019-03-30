@@ -11,13 +11,12 @@ import java.awt.Color;
 public class Main {
 
     public static void main(String[] args) {
-
-        State s = new State(new Usuarios(200, 100, 3));
+        State s = new State(new Usuarios(200, 100, 1234));
         s.ImprimirDistancias();
         //s.ImprimirPosiciones();
         //s.donkeyInit();
-        //s.averageInit();
-        s.minRouteInit();
+        s.averageInit();
+        //s.minRouteInit();
         //s.randomInit();
         System.out.println("Initial State" + s);
 
@@ -35,7 +34,7 @@ public class Main {
         try {
             long startTime = System.currentTimeMillis();
 
-            Problem problem =  new Problem(myState,new ConductoresSuccessorFunction2(), new MyGoalTest(),new IHeuristicFunctionDistance());
+            Problem problem =  new Problem(myState,new ConductoresSuccessorFunction2(), new MyGoalTest(),new IHeuristicFunctionDistanceAndDrivers());
             Search search =  new HillClimbingSearch();
             SearchAgent agent = new SearchAgent(problem,search);
             long stopTime = System.currentTimeMillis();
@@ -46,6 +45,8 @@ public class Main {
             System.out.println("Distancia total: " + goalState.distanciaTotal());
             System.out.println(search.getGoalState());
             printActions(agent.getActions());
+            System.out.println("Tiempo de ejecución: " + elapsedTime);
+            printInstrumentation(agent.getInstrumentation());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -56,7 +57,7 @@ public class Main {
         try {
             long startTime = System.currentTimeMillis();
 
-            Problem problem =  new Problem(myState,new ConductoresSuccessorFunctionSA(), new MyGoalTest(),new IHeuristicFunctionDistance());
+            Problem problem =  new Problem(myState,new ConductoresSuccessorFunction2(), new MyGoalTest(),new IHeuristicFunctionDistanceAndDrivers());
             SimulatedAnnealingSearch search =  new SimulatedAnnealingSearch(1000,10000,15,0.1);
             //search.traceOn();
             SearchAgent agent = new SearchAgent(problem,search);
@@ -68,6 +69,7 @@ public class Main {
             System.out.println("Distancia total: " + goalState.distanciaTotal());
             System.out.println();
             printActions(agent.getActions());
+
         } catch (Exception e) {
             e.printStackTrace();
         }
