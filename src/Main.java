@@ -52,7 +52,6 @@ public class Main {
                 TSPSimulatedAnnealingSearch(s);
             }
         } while (true);
-        experimentSA();
     }
 
 
@@ -84,7 +83,7 @@ public class Main {
         try {
             long startTime = System.currentTimeMillis();
 
-            Problem problem =  new Problem(myState,new ConductoresSuccessorFunctionSA(), new MyGoalTest(),new IHeuristicFunctionDistanceAndDrivers());
+            Problem problem =  new Problem(myState,new ConductoresSuccessorFunctionSA(), new MyGoalTest(),new IHeuristicFunctionDistance());
             SearchAgent agent = new SearchAgent(problem,search);
             elapsedTime = System.currentTimeMillis() - startTime;
             System.out.println("Tiempo de ejecución: " + time(elapsedTime));
@@ -123,7 +122,7 @@ public class Main {
             for(int j=0; j<iter; j++){
                 int k = (int) Math.pow(5,i);
                 double l = Math.pow(10,-j);
-                search = new SimulatedAnnealingSearch(500,10000,k,l);
+                search = new SimulatedAnnealingSearch(500,100000,k,l);
                 TSPSimulatedAnnealingSearch(s);
                 distance = goalState.distanciaTotal();
                 res.add("k: " + k + " l: " + l + " Costo: " + distance + " Tiempo: " + time(elapsedTime));
@@ -153,6 +152,5 @@ public class Main {
 
     private static String time(double ms){
         return (int) ms/60000 + " m " + (int) (ms/1000)%60 + " s";
-
     }
 }
