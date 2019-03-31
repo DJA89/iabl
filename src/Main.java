@@ -1,4 +1,5 @@
 import IA.Comparticion.*;
+import aima.search.framework.HeuristicFunction;
 import aima.search.framework.Problem;
 import aima.search.framework.Search;
 import aima.search.framework.SearchAgent;
@@ -33,12 +34,22 @@ public class Main {
             }while(init != 0 && init != 1);
             if(init == 0) s.averageInit();
             else s.minRouteInit();
+            System.out.print("\nInitial State: " + s);
+            System.out.print("\nElige funcion heuristica: Distancia(0) / Conductores y Distancia (1): ");
+            int nh = reader.nextInt();
+            HeuristicFunction myHeuristic;
+            if(nh == 0) {
+                myHeuristic = new IHeuristicFunctionDistance();
+            } else {
+                myHeuristic = new IHeuristicFunctionDistanceAndDrivers();
+            }
+
             int typeSearch;
             do{
                 System.out.print("Elige tipo de búsqueda: Hill Climbing (0) / Simulated Annealing (1): ");
                 typeSearch = reader.nextInt();
             }while(typeSearch != 0 && typeSearch != 1);
-            if(typeSearch == 0) TSPHillClimbingSearch(s);
+            if(typeSearch == 0) TSPHillClimbingSearch(s,myHeuristic);
             else{
                 System.out.print("Escriba número de iteraciones totales: ");
                 int iter = reader.nextInt();
@@ -49,7 +60,7 @@ public class Main {
                 System.out.print("Escriba lambda (recomendación: 0.01): ");
                 double l = reader.nextDouble();
                 search = new SimulatedAnnealingSearch(steps,iter,k,l);
-                TSPSimulatedAnnealingSearch(s);
+                TSPSimulatedAnnealingSearch(s, myHeuristic);
             }
         } while (true);
     }
@@ -59,12 +70,11 @@ public class Main {
     private static State goalState;
     private static SimulatedAnnealingSearch search;
 
-    private static void TSPHillClimbingSearch(State myState) {
+    private static void TSPHillClimbingSearch(State myState, HeuristicFunction heuristicFunction) {
         System.out.println("\nTSP HillClimbing  -->" + "\n");
         try {
             long startTime = System.currentTimeMillis();
-
-            Problem problem =  new Problem(myState,new ConductoresSuccessorFunction2(), new MyGoalTest(),new IHeuristicFunctionDistanceAndDrivers());
+            Problem problem =  new Problem(myState,new ConductoresSuccessorFunction2(), new MyGoalTest(),heuristicFunction);
             Search search =  new HillClimbingSearch();
             SearchAgent agent = new SearchAgent(problem,search);
             elapsedTime = System.currentTimeMillis() - startTime;
@@ -78,12 +88,12 @@ public class Main {
         }
     }
 
-    private static void TSPSimulatedAnnealingSearch(State myState) {
+    private static void TSPSimulatedAnnealingSearch(State myState, HeuristicFunction heuristicFunction) {
         System.out.println("\nTSP Simulated Annealing  -->" + "\n");
         try {
             long startTime = System.currentTimeMillis();
 
-            Problem problem =  new Problem(myState,new ConductoresSuccessorFunctionSA(), new MyGoalTest(),new IHeuristicFunctionDistance());
+            Problem problem =  new Problem(myState,new ConductoresSuccessorFunctionSA(), new MyGoalTest(),heuristicFunction);
             SearchAgent agent = new SearchAgent(problem,search);
             elapsedTime = System.currentTimeMillis() - startTime;
             System.out.println("Tiempo de ejecución: " + time(elapsedTime));
@@ -112,7 +122,7 @@ public class Main {
         }
     }
 
-    private static void experimentSA(){
+    /*private static void experimentSA(){
         State s = new State(new Usuarios(200, 100, 1234));
         int iter = 4;
         double distance;
@@ -131,7 +141,7 @@ public class Main {
         for(String r: res){
             System.out.println(r);
         }
-    }
+    }*/
 
     private static void plotting() throws IOException{
         Plot plot = Plot.plot(Plot.plotOpts().
