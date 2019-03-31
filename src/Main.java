@@ -161,6 +161,9 @@ public class Main {
     }
 
     private static String time(double ms){
-        return (int) ms/60000 + " m " + (int) (ms/1000)%60 + " s";
+        int min = (int) ms/60000;
+        int secs = (int) (ms/1000)%60;
+        int Restant_ms = (int) (ms % 1000);
+        return (int) min + " m " + secs + " s " + Restant_ms + " ms";
     }
 }
