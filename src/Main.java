@@ -11,23 +11,53 @@ import java.awt.Color;
 public class Main {
 
     public static void main(String[] args) {
-        State s = new State(new Usuarios(200, 100, 1234));
-        s.ImprimirDistancias();
-        //s.ImprimirPosiciones();
-        //s.donkeyInit();
-        s.averageInit();
-        //s.minRouteInit();
-        //s.randomInit();
-        System.out.println("Initial State" + s);
-
-        //TSPSimulatedAnnealingSearch(s);
-        TSPHillClimbingSearch(s);
+        Scanner reader = new Scanner(System.in);
+        do{
+            int program;
+            do{
+                System.out.print("Eliga opción: Terminar programa (0) / Iniciar programa (1): ");
+                program = reader.nextInt();
+            }while(program != 0 && program != 1);
+            if(program == 0) break;
+            System.out.print("Escriba número de usuarios: ");
+            int n = reader.nextInt();
+            System.out.print("Escriba número de conductores: ");
+            int m = reader.nextInt();
+            System.out.print("Escriba seed: ");
+            int seed = reader.nextInt();
+            State s = new State(new Usuarios(n, m, seed));
+            int init;
+            do{
+                System.out.print("Elige inicializador: Average Init (0) / Greedy Init (1): ");
+                init = reader.nextInt();
+            }while(init != 0 && init != 1);
+            if(init == 0) s.averageInit();
+            else s.minRouteInit();
+            int typeSearch;
+            do{
+                System.out.print("Elige tipo de búsqueda: Hill Climbing (0) / Simulated Annealing (1): ");
+                typeSearch = reader.nextInt();
+            }while(typeSearch != 0 && typeSearch != 1);
+            if(typeSearch == 0) TSPHillClimbingSearch(s);
+            else{
+                System.out.print("Escriba número de iteraciones totales: ");
+                int iter = reader.nextInt();
+                System.out.print("Escriba número de iteraciones por cambio de temperatura: ");
+                int steps = reader.nextInt();
+                System.out.print("Escriba k (recomendación: 1): ");
+                int k = reader.nextInt();
+                System.out.print("Escriba lambda (recomendación: 0.01): ");
+                double l = reader.nextDouble();
+                search = new SimulatedAnnealingSearch(steps,iter,k,l);
+                TSPSimulatedAnnealingSearch(s);
+            }
+        } while (true);
     }
 
 
     private static long elapsedTime;
     private static State goalState;
-    private static SimulatedAnnealingSearch search =  new SimulatedAnnealingSearch(500,10000,1 ,0.1);;
+    private static SimulatedAnnealingSearch search;
 
     private static void TSPHillClimbingSearch(State myState) {
         System.out.println("\nTSP HillClimbing  -->" + "\n");
@@ -37,16 +67,12 @@ public class Main {
             Problem problem =  new Problem(myState,new ConductoresSuccessorFunction2(), new MyGoalTest(),new IHeuristicFunctionDistanceAndDrivers());
             Search search =  new HillClimbingSearch();
             SearchAgent agent = new SearchAgent(problem,search);
-            long stopTime = System.currentTimeMillis();
-            elapsedTime = stopTime - startTime;
-            System.out.println("Tiempo de ejecución: " + elapsedTime);
+            elapsedTime = System.currentTimeMillis() - startTime;
+            System.out.println("Tiempo de ejecución: " + time(elapsedTime));
             printInstrumentation(agent.getInstrumentation());
             goalState = (State) search.getGoalState();
-            System.out.println("Distancia total: " + goalState.distanciaTotal());
             System.out.println(search.getGoalState());
             printActions(agent.getActions());
-            System.out.println("Tiempo de ejecución: " + elapsedTime);
-            printInstrumentation(agent.getInstrumentation());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -57,19 +83,13 @@ public class Main {
         try {
             long startTime = System.currentTimeMillis();
 
-            Problem problem =  new Problem(myState,new ConductoresSuccessorFunction2(), new MyGoalTest(),new IHeuristicFunctionDistanceAndDrivers());
-            SimulatedAnnealingSearch search =  new SimulatedAnnealingSearch(1000,10000,15,0.1);
-            //search.traceOn();
+            Problem problem =  new Problem(myState,new ConductoresSuccessorFunctionSA(), new MyGoalTest(),new IHeuristicFunctionDistance());
             SearchAgent agent = new SearchAgent(problem,search);
-            long stopTime = System.currentTimeMillis();
-            elapsedTime = stopTime - startTime;
-            System.out.println("Tiempo de ejecución: " + elapsedTime);
+            elapsedTime = System.currentTimeMillis() - startTime;
+            System.out.println("Tiempo de ejecución: " + time(elapsedTime));
             printInstrumentation(agent.getInstrumentation());
             goalState = (State) search.getGoalState();
-            System.out.println("Distancia total: " + goalState.distanciaTotal());
-            System.out.println();
             printActions(agent.getActions());
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -93,64 +113,44 @@ public class Main {
     }
 
     private static void experimentSA(){
-        State s = new State(new Usuarios(50, 25, 1234));
+        State s = new State(new Usuarios(200, 100, 1234));
         int iter = 4;
         double distance;
-        s.minRouteInit();
-        TSPHillClimbingSearch(s);
+        s.averageInit();
         ArrayList<String> res = new ArrayList<String>();
-        for(int i=0; i<iter-1;i++){
+        for(int i=0; i<iter;i++){
             for(int j=0; j<iter; j++){
                 int k = (int) Math.pow(5,i);
                 double l = Math.pow(10,-j);
-                search = new SimulatedAnnealingSearch(500,10000,k,l);
+                search = new SimulatedAnnealingSearch(500,100000,k,l);
                 TSPSimulatedAnnealingSearch(s);
                 distance = goalState.distanciaTotal();
-                res.add("k: " + k + " l: " + l + " Costo: " + distance + " Tiempo: " + elapsedTime);
+                res.add("k: " + k + " l: " + l + " Costo: " + distance + " Tiempo: " + time(elapsedTime));
             }
         }
         for(String r: res){
             System.out.println(r);
         }
     }
-    private static void adjustmentK() throws IOException{
-        State s = new State(new Usuarios(50, 25, 1234));
-        s.minRouteInit();
-        TSPHillClimbingSearch(s);
-        double hillClimbingDistance = goalState.distanciaTotal();
+
+    private static void plotting() throws IOException{
         Plot plot = Plot.plot(Plot.plotOpts().
-                title("TSPSimulatedAnnealingSearch").
+                title("Graphic").
                 legend(Plot.LegendFormat.BOTTOM));
         Plot.Data line = Plot.data();
-        int bestK = 1, iter = 2;
-        double maxX, maxY, differ, maxDistance = 0, distance;
-        double bestDistance = Double.MAX_VALUE;
-        for(int i=0;i<iter;i++){
-            int k = (int) Math.pow(5,i);
-            System.out.println("K: " + k);
-            search =  new SimulatedAnnealingSearch(500,10000,k,0.1);
-            TSPSimulatedAnnealingSearch(s);
-            distance = goalState.distanciaTotal();
-            line.xy(k,distance);
-            differ = Math.abs(distance - hillClimbingDistance);
-            if(bestDistance > differ){
-                bestDistance = differ;
-                bestK = k;
-            }
-            if(maxDistance < distance) maxDistance = distance;
-            if(i == iter - 1){
-                plot.xAxis("k", Plot.axisOpts().
-                        range(0, k)).
-                        yAxis("Distancia", Plot.axisOpts().
-                                range(0, maxDistance*1.05));
-            }
+        for(int i=0;i<5;i++){
+            line.xy(0,1);
         }
-        plot.series("Data", line,
-                Plot.seriesOpts().
+        plot.series("Data", line, Plot.seriesOpts().
                         marker(Plot.Marker.DIAMOND).
                         markerColor(Color.GREEN).
-                        color(Color.BLACK));
-        plot.save("Adjustment_K", "png");
-        System.out.println("Mejor K: " + bestK);
+                        color(Color.BLACK)).
+                xAxis("k", Plot.axisOpts().range(0, 5)).
+                yAxis("Distancia", Plot.axisOpts().range(0, 5*1.05)).
+                save("Adjustment", "png");
+    }
+
+    private static String time(double ms){
+        return (int) ms/60000 + " m " + (int) (ms/1000)%60 + " s";
     }
 }
